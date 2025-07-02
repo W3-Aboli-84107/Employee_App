@@ -4,7 +4,7 @@ import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export default function HeaderBar() {
+export default function HeaderBar({ onSearch }) {
   const navigation = useNavigation();
   const [firstName, setFirstName] = useState('');
   const [greeting, setGreeting] = useState('Hello');
@@ -55,7 +55,14 @@ export default function HeaderBar() {
 
       <View style={styles.searchBox}>
         <Ionicons name="search" size={22} color="#ccc" style={{ marginLeft: 8 }} />
-        <TextInput placeholder="Search" placeholderTextColor="#ccc" style={styles.searchInput} />
+        <TextInput
+          placeholder="Search"
+          placeholderTextColor="#ccc"
+          style={styles.searchInput}
+          onChangeText={(text) => {
+            if (onSearch) onSearch(text);
+          }}
+        />
       </View>
     </View>
   );

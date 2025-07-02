@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import colors from '../constants/colors';
 
-const VisitorCard = ({ name, date, onCall }) => {
+const VisitorCard = ({ name, onCall }) => {
   const [outTime, setOutTime] = useState(null);
   const [isTimedOut, setIsTimedOut] = useState(false);
 
@@ -27,14 +27,14 @@ const VisitorCard = ({ name, date, onCall }) => {
     <View style={styles.card}>
       <View>
         <Text style={styles.name}>{name}</Text>
-        <Text style={styles.date}>
-          {isTimedOut ? `Out Time: ${outTime}` : date}
-        </Text>
+        {isTimedOut && (
+          <Text style={styles.date}>Out Time: {outTime}</Text>
+        )}
       </View>
       <View style={styles.icons}>
         <TouchableOpacity
           onPress={handleTimeout}
-          disabled={isTimedOut} // prevent multiple clicks
+          disabled={isTimedOut}
         >
           <Ionicons
             name="time-outline"
@@ -83,7 +83,6 @@ const styles = StyleSheet.create({
     marginLeft: 10,
   },
   callIcon: {
-    // backgroundColor: '#2ecc71',
     borderRadius: 20,
     padding: 4,
   },
