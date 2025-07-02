@@ -1,46 +1,62 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Platform } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import DateTimePickerModal from 'react-native-modal-datetime-picker';
+import React, { useEffect, useState } from 'react';
+import { View, StyleSheet, Text, TextInput, TouchableOpacity } from 'react-native';
+import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export default function HeaderBar({ userName = 'Suraj' }) {
-  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+export default function HeaderBar() {
+  const navigation = useNavigation();
+  const [firstName, setFirstName] = useState('');
+  const [greeting, setGreeting] = useState('Hello');
 
-  const showDatePicker = () => {
-    setDatePickerVisibility(true);
-  };
+  useEffect(() => {
+    const getUserData = async () => {
+      try {
+        const userData = await AsyncStorage.getItem('user');
+        if (userData) {
+          const parsedData = JSON.parse(userData);
+          setFirstName(parsedData.firstName);
+        }
+      } catch (error) {
+        console.error('Failed to load user data:', error);
+      }
+    };
 
-  const hideDatePicker = () => {
-    setDatePickerVisibility(false);
-  };
+    const updateGreeting = () => {
+      const hour = new Date().getHours();
+      if (hour < 12) {
+        setGreeting('Good Morning');
+      } else if (hour < 17) {
+        setGreeting('Good Afternoon');
+      } else {
+        setGreeting('Good Evening');
+      }
+    };
 
-  const handleConfirm = (date) => {
-    console.log('Selected date:', date);
-    hideDatePicker();
+    getUserData();
+    updateGreeting();
+  }, []);
+
+  const openHistory = () => {
+    navigation.navigate('History');
   };
 
   return (
     <View style={styles.container}>
       <View style={styles.topRow}>
-        <View style={styles.icons}>
-          <TouchableOpacity onPress={showDatePicker}>
-            <Ionicons name="calendar-outline" size={20} color="#fff" />
-          </TouchableOpacity>
+        <View style={styles.greetingSection}>
+          <Text style={styles.greetingText}>{greeting}</Text>
+          <Text style={styles.userName}>{firstName || 'User'}</Text>
         </View>
+        <TouchableOpacity onPress={openHistory}>
+          <FontAwesome5 name="history" size={24} color="#fff" />
+        </TouchableOpacity>
       </View>
 
       <View style={styles.searchBox}>
-        <Ionicons name="search" size={18} color="#ccc" style={{ marginLeft: 8 }} />
+        <Ionicons name="search" size={22} color="#ccc" style={{ marginLeft: 8 }} />
         <TextInput placeholder="Search" placeholderTextColor="#ccc" style={styles.searchInput} />
       </View>
-
-      {/* Date Picker Modal */}
-      <DateTimePickerModal
-        isVisible={isDatePickerVisible}
-        mode="date"
-        onConfirm={handleConfirm}
-        onCancel={hideDatePicker}
-      />
     </View>
   );
 }
@@ -49,33 +65,49 @@ const styles = StyleSheet.create({
   container: {
     height: 200,
     backgroundColor: '#D32F2F',
-    padding: 16,
+    paddingHorizontal: 16,
     paddingTop: 40,
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
+    position: 'relative',
   },
   topRow: {
-    
+    top: 20,
     flexDirection: 'row',
-    alignItems: 'center',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 20,
   },
-  icons: {
-    flexDirection: 'row',
-    marginLeft: 'auto',
+  greetingSection: {
+    flexDirection: 'column',
+  },
+  greetingText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: '500',
+  },
+  userName: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginTop: 4,
   },
   searchBox: {
-    height:50,
+    position: 'absolute',
+    left: 16,
+    right: 16,
+    bottom: 16,
+    height: 50,
     flexDirection: 'row',
     backgroundColor: '#1C1C1C',
     borderRadius: 10,
     alignItems: 'center',
-    paddingVertical: 6,
-    marginTop: 12,
+    paddingHorizontal: 8,
   },
   searchInput: {
     color: '#fff',
     marginLeft: 8,
-    fontSize: 14,
+    fontSize: 16,
     flex: 1,
   },
 });
