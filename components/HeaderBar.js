@@ -116,5 +116,7 @@ const styles = StyleSheet.create({
     marginLeft: 8,
     fontSize: 16,
     flex: 1,
-  },
+  },   
 });
+
+
