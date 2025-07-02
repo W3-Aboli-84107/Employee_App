@@ -17,6 +17,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import AdminDashboard from '../screens/Admin/AdminDashboard';
 import VisitorFormScreen from '../screens/common/VisitorFormScreen';
 import VisitorDetailsScreen from '../screens/common/VisitorFormScreen';
+import HistoryScreen from '../screens/common/HistoryScreen';
 
 
 const Stack = createNativeStackNavigator();
@@ -28,6 +29,7 @@ export default function AdminStack() {
       <Stack.Screen name="VisitorForm" component={VisitorFormScreen} />
       <Stack.Screen name="VisitorDetails" component={VisitorDetailsScreen} />
       <Stack.Screen name="VisitorList" component={VisitorListScreen} />
+      {/* <Stack.Screen name='History' component={HistoryScreen} /> */}
     </Stack.Navigator>
   );
 }

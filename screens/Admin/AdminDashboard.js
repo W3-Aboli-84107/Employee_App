@@ -11,53 +11,47 @@ import { Ionicons } from '@expo/vector-icons';
 import colors from '../../constants/colors';
 import VisitorCard from '../../components/VisiterCard';
 
+const generateVisitors = (dayLabel) =>
+  Array.from({ length: 20 }, (_, i) => ({
+    name: `${dayLabel} Visitor ${i + 1}`,
+    day: dayLabel,
+  }));
+
 export default function AdminDashboard({ navigation }) {
   const [searchQuery, setSearchQuery] = useState('');
-  const [filteredVisitors, setFilteredVisitors] = useState([]);
-
-  const visitors = [
-    'Suresh Khanna',
-    'Preeti Ahuja',
-    'Arav Sharma',
-    'Priya Patel',
-    'Sujata Singh',
-    'Suraj Yadav',
-    'Shravani Padwal'
-  ];
+  const [visitors, setVisitors] = useState(generateVisitors('Today'));
+  const [filteredVisitors, setFilteredVisitors] = useState(visitors);
 
   useEffect(() => {
     if (searchQuery.trim() === '') {
       setFilteredVisitors(visitors);
     } else {
-      const filtered = visitors.filter((name) =>
-        name.toLowerCase().includes(searchQuery.toLowerCase())
+      const matches = visitors.filter((visitor) =>
+        visitor.name.toLowerCase().includes(searchQuery.toLowerCase())
       );
-      setFilteredVisitors(filtered);
+      setFilteredVisitors(matches);
     }
   }, [searchQuery]);
 
   return (
     <View style={styles.screen}>
-      {/* Header Section with search */}
       <HeaderBar onSearch={setSearchQuery} />
 
-      {/* Visitor List Section */}
       <ScrollView contentContainerStyle={styles.container}>
         <Text style={styles.label}>Today</Text>
-        {filteredVisitors.map((name, index) => (
-          <VisitorCard
-            key={index}
-            name={name}
-            date={'In Time: 10:00 AM'}
-            onCall={() => console.log('Calling', name)}
-          />
-        ))}
-        {filteredVisitors.length === 0 && (
+        {filteredVisitors.length > 0 ? (
+          filteredVisitors.map((visitor, index) => (
+            <VisitorCard
+              key={index}
+              name={visitor.name}
+              onCall={() => console.log('Calling', visitor.name)}
+            />
+          ))
+        ) : (
           <Text style={{ color: '#aaa', marginTop: 20 }}>No visitors found.</Text>
         )}
       </ScrollView>
 
-      {/* Floating Add Button */}
       <TouchableOpacity
         style={styles.fab}
         onPress={() => navigation.navigate('VisitorForm')}
@@ -81,6 +75,7 @@ const styles = StyleSheet.create({
     color: colors.text,
     fontSize: 16,
     marginBottom: 10,
+    fontWeight: 'bold',
   },
   fab: {
     position: 'absolute',

@@ -41,6 +41,7 @@ import AdminDashboardScreen from '../screens/Admin/AdminDashboard';
 import SuperAdminDashboardScreen from '../screens/SuperAdmin/SuperAdminDashboard';
 import DashboardScreen from '../screens/common/DashboardScreen';
 import VisitorFormScreen from '../screens/common/VisitorFormScreen';
+import HistoryScreen from '../screens/common/HistoryScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -56,6 +57,7 @@ export default function AppNavigator() {
       <Stack.Screen name="SuperAdminDashboard" component={SuperAdminDashboardScreen} />
       <Stack.Screen name="DashboardScreen" component={DashboardScreen} />
       <Stack.Screen name="VisitorForm" component={VisitorFormScreen} />
+      <Stack.Screen name='History' component={HistoryScreen} />
     </Stack.Navigator>
   );
 }
