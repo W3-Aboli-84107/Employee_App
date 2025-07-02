@@ -77,5 +77,7 @@ const styles = StyleSheet.create({
     marginLeft: 8,
     fontSize: 14,
     flex: 1,
-  },
+  },   
 });
+
+
