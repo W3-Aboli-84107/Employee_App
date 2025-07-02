@@ -1,237 +1,3 @@
-// import React, { useState } from 'react';
-// import {
-//   View,
-//   Text,
-//   TextInput,
-//   StyleSheet,
-//   TouchableOpacity,
-//   ScrollView,
-// } from 'react-native';
-// import { Ionicons, MaterialCommunityIcons, FontAwesome } from '@expo/vector-icons';
-// import { Picker } from '@react-native-picker/picker';
-
-// export default function VisitorFormScreen({ navigation }) {
-//   const [gender, setGender] = useState('');
-//   const [purpose, setPurpose] = useState('');
-//   const [reference, setReference] = useState('');
-
-//   return (
-//     <ScrollView style={styles.container}>
-//       <Text style={styles.title}>Visitor’s Detail</Text>
-
-//       {/* Visitor Name */}
-//       <View style={styles.inputBox}>
-//         <Ionicons name="person" size={20} color="#E74C3C" style={styles.icon} />
-//         <TextInput placeholder="Visitor Name" placeholderTextColor="#aaa" style={styles.input} />
-//       </View>
-
-//       {/* Phone Number */}
-//       <View style={styles.inputBox}>
-//         <Ionicons name="call" size={20} color="#E74C3C" style={styles.icon} />
-//         <TextInput placeholder="Phone number" placeholderTextColor="#aaa" style={styles.input} keyboardType="phone-pad" />
-//       </View>
-
-//       {/* Email */}
-//       <View style={styles.inputBox}>
-//         <MaterialCommunityIcons name="email-outline" size={20} color="#E74C3C" style={styles.icon} />
-//         <TextInput placeholder="Email" placeholderTextColor="#aaa" style={styles.input} keyboardType="email-address" />
-//       </View>
-
-//       {/* Address */}
-//       <View style={styles.inputBox}>
-//         <Ionicons name="location-outline" size={20} color="#E74C3C" style={styles.icon} />
-//         <TextInput placeholder="Address" placeholderTextColor="#aaa" style={styles.input} />
-//       </View>
-
-//       {/* Gender Picker */}
-//       <View style={styles.pickerBox}>
-//         <Ionicons name="male-female" size={20} color="#E74C3C" style={styles.icon} />
-//         <Picker
-//           selectedValue={gender}
-//           onValueChange={(itemValue) => setGender(itemValue)}
-//           style={styles.picker}
-//         >
-//           <Picker.Item label="Gender" value="" />
-//           <Picker.Item label="Male" value="Male" />
-//           <Picker.Item label="Female" value="Female" />
-//           <Picker.Item label="Other" value="Other" />
-//         </Picker>
-//       </View>
-
-//       {/* Purpose Picker */}
-//       <View style={styles.pickerBox}>
-//         <Ionicons name="calendar" size={20} color="#E74C3C" style={styles.icon} />
-//         <Picker
-//           selectedValue={purpose}
-//           onValueChange={(itemValue) => setPurpose(itemValue)}
-//           style={styles.picker}
-//         >
-//           <Picker.Item label="Purpose" value="" />
-//           <Picker.Item label="Meeting" value="Meeting" />
-//           <Picker.Item label="Delivery" value="Delivery" />
-//           <Picker.Item label="Interview" value="Interview" />
-//         </Picker>
-//       </View>
-
-//       {/* Description */}
-//       <View style={styles.textAreaBox}>
-//         <Ionicons name="document-text-outline" size={20} color="#E74C3C" style={styles.icon} />
-//         <TextInput
-//           placeholder="Description"
-//           placeholderTextColor="#aaa"
-//           style={styles.textArea}
-//           multiline
-//         />
-//       </View>
-
-//       {/* Whom to meet */}
-//       <View style={styles.inputBox}>
-//         <FontAwesome name="users" size={20} color="#E74C3C" style={styles.icon} />
-//         <TextInput placeholder="Whom to meet" placeholderTextColor="#aaa" style={styles.input} />
-//       </View>
-
-//       {/* ID Proof */}
-//       <View style={styles.inputBox}>
-//         <MaterialCommunityIcons name="card-account-details-outline" size={20} color="#E74C3C" style={styles.icon} />
-//         <TextInput placeholder="ID proof (optional)" placeholderTextColor="#aaa" style={styles.input} />
-//       </View>
-
-//       {/* Reference By */}
-//       <View style={styles.pickerBox}>
-//         <MaterialCommunityIcons name="account-search-outline" size={20} color="#E74C3C" style={styles.icon} />
-//         <Picker
-//           selectedValue={reference}
-//           onValueChange={(itemValue) => setReference(itemValue)}
-//           style={styles.picker}
-//         >
-//           <Picker.Item label="Reference by (optional)" value="" />
-//           <Picker.Item label="Manager" value="Manager" />
-//           <Picker.Item label="HR" value="HR" />
-//           <Picker.Item label="Employee" value="Employee" />
-//         </Picker>
-//       </View>
-
-//       {/* Photo + Remark (you can add actual image picker later) */}
-//       <View style={styles.rowButtons}>
-//         <TouchableOpacity style={styles.buttonOutline}>
-//           <Ionicons name="camera" size={20} color="#fff" />
-//           <Text style={styles.buttonText}>Photo</Text>
-//         </TouchableOpacity>
-
-//         <TouchableOpacity style={styles.buttonOutline}>
-//           <Ionicons name="create-outline" size={20} color="#fff" />
-//           <Text style={styles.buttonText}>Remark (optional)</Text>
-//         </TouchableOpacity>
-//       </View>
-
-//       {/* Action Buttons */}
-//       <View style={styles.actionRow}>
-//         <TouchableOpacity style={styles.cancelButton} onPress={() => navigation.goBack()}>
-//           <Text style={styles.actionText}>Cancel</Text>
-//         </TouchableOpacity>
-
-//         <TouchableOpacity style={styles.saveButton}>
-//           <Text style={styles.actionText}>Save</Text>
-//         </TouchableOpacity>
-//       </View>
-//     </ScrollView>
-//   );
-// }
-
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     backgroundColor: '#0D0D1A',
-//     padding: 20,
-//   },
-//   title: {
-//     fontSize: 18,
-//     color: '#fff',
-//     fontWeight: 'bold',
-//     marginBottom: 16,
-//   },
-//   inputBox: {
-//     flexDirection: 'row',
-//     backgroundColor: '#1E1E2C',
-//     borderRadius: 8,
-//     padding: 10,
-//     alignItems: 'center',
-//     marginBottom: 10,
-//   },
-//   input: {
-//     color: '#fff',
-//     marginLeft: 10,
-//     flex: 1,
-//   },
-//   icon: {
-//     marginLeft: 4,
-//   },
-//   pickerBox: {
-//     flexDirection: 'row',
-//     backgroundColor: '#1E1E2C',
-//     borderRadius: 8,
-//     alignItems: 'center',
-//     marginBottom: 10,
-//   },
-//   picker: {
-//     flex: 1,
-//     color: '#fff',
-//   },
-//   textAreaBox: {
-//     flexDirection: 'row',
-//     backgroundColor: '#1E1E2C',
-//     borderRadius: 8,
-//     padding: 10,
-//     alignItems: 'flex-start',
-//     marginBottom: 10,
-//   },
-//   textArea: {
-//     color: '#fff',
-//     marginLeft: 10,
-//     flex: 1,
-//     height: 80,
-//     textAlignVertical: 'top',
-//   },
-//   rowButtons: {
-//     flexDirection: 'row',
-//     justifyContent: 'space-between',
-//     marginTop: 10,
-//   },
-//   buttonOutline: {
-//     flexDirection: 'row',
-//     backgroundColor: '#1E1E2C',
-//     padding: 12,
-//     borderRadius: 8,
-//     alignItems: 'center',
-//     flex: 1,
-//     marginRight: 10,
-//   },
-//   buttonText: {
-//     color: '#fff',
-//     marginLeft: 8,
-//   },
-//   actionRow: {
-//     flexDirection: 'row',
-//     justifyContent: 'space-between',
-//     marginTop: 30,
-//   },
-//   cancelButton: {
-//     backgroundColor: '#1E1E2C',
-//     paddingVertical: 14,
-//     paddingHorizontal: 28,
-//     borderRadius: 8,
-//   },
-//   saveButton: {
-//     backgroundColor: '#E74C3C',
-//     paddingVertical: 14,
-//     paddingHorizontal: 28,
-//     borderRadius: 8,
-//   },
-//   actionText: {
-//     color: '#fff',
-//     fontWeight: 'bold',
-//   },
-// });
 
 import React, { useState } from 'react';
 import {
@@ -638,3 +404,213 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
+
+
+
+// import React, { useState } from 'react';
+// import {
+//   View,
+//   Text,
+//   StyleSheet,
+//   TextInput,
+//   TouchableOpacity,
+//   FlatList,
+//   Platform,
+//   Alert,
+// } from 'react-native';
+// import { Ionicons } from '@expo/vector-icons';
+// import DateTimePicker from '@react-native-community/datetimepicker';
+
+// export default function DashboardScreen({ navigation }) {
+//   const [showCalendar, setShowCalendar] = useState(false);
+//   const [selectedDate, setSelectedDate] = useState(new Date());
+//   const [visitors, setVisitors] = useState([]);
+//   const [newVisitor, setNewVisitor] = useState('');
+
+//   const handleCalendarPress = () => setShowCalendar(true);
+
+//   const onDateChange = (event, date) => {
+//     setShowCalendar(Platform.OS === 'ios');
+//     if (date) setSelectedDate(date);
+//   };
+
+//   const handleLogout = () => navigation.replace('Login');
+
+//   const addVisitor = () => {
+//     if (!newVisitor.trim()) {
+//       Alert.alert('Error', 'Please enter a visitor name.');
+//       return;
+//     }
+//     const newEntry = {
+//       id: Date.now().toString(),
+//       name: newVisitor.trim(),
+//     };
+//     setVisitors([newEntry, ...visitors]);
+//     setNewVisitor('');
+//   };
+
+//   const renderVisitor = ({ item }) => (
+//     <View style={styles.visitorCard}>
+//       <Text style={styles.visitorName}>{item.name}</Text>
+//       <View style={styles.visitorIcons}>
+//         <Ionicons name="eye-outline" size={20} color="white" style={styles.visitorIcon} />
+//         <Ionicons name="call-outline" size={20} color="white" style={styles.visitorIcon} />
+//       </View>
+//     </View>
+//   );
+
+//   return (
+//     <View style={styles.container}>
+//       {/* Header */}
+//       <View style={styles.header}>
+//         <Text style={styles.greeting}>
+//           Hello, <Text style={styles.bold}>Suraj</Text>
+//         </Text>
+//         <View style={styles.headerIcons}>
+//           <TouchableOpacity onPress={handleCalendarPress} style={styles.iconWrapper}>
+//             <Ionicons name="calendar-outline" size={24} color="#fff" />
+//           </TouchableOpacity>
+//           <TouchableOpacity onPress={handleLogout} style={styles.iconWrapper}>
+//             <Ionicons name="log-out-outline" size={24} color="#fff" />
+//           </TouchableOpacity>
+//         </View>
+//       </View>
+
+//       {showCalendar && (
+//         <DateTimePicker
+//           value={selectedDate}
+//           mode="date"
+//           display="default"
+//           onChange={onDateChange}
+//         />
+//       )}
+
+//       {/* Add Visitor Input */}
+//       <View style={styles.searchContainer}>
+//         <TextInput
+//           placeholder="Enter visitor name"
+//           placeholderTextColor="#aaa"
+//           style={styles.searchInput}
+//           value={newVisitor}
+//           onChangeText={setNewVisitor}
+//         />
+//         <TouchableOpacity onPress={addVisitor} style={styles.addButton}>
+//           <Text style={styles.addButtonText}>Add</Text>
+//         </TouchableOpacity>
+//       </View>
+
+//       {/* Visitor List */}
+//       <View style={styles.visitorListContainer}>
+//         <Text style={styles.sectionTitle}>Today's Visitors</Text>
+//         <FlatList
+//           data={visitors}
+//           keyExtractor={(item) => item.id}
+//           renderItem={renderVisitor}
+//           ListEmptyComponent={<Text style={{ color: '#ccc' }}>No visitors yet.</Text>}
+//         />
+//       </View>
+
+//       {/* Floating Action Button - Centered + */}
+//       <TouchableOpacity
+//         style={styles.fab}
+//         onPress={() => navigation.navigate('VisitorFormScreen')}
+//       >
+//         <Text style={styles.fabIcon}>+</Text>
+//       </TouchableOpacity>
+//     </View>
+//   );
+// }
+
+// const styles = StyleSheet.create({
+//   container: { 
+//     flex: 1, 
+//     backgroundColor: '#1E1E2C', 
+//     paddingTop: 50,
+//     position: 'relative', // Needed for absolute positioning of FAB
+//   },
+//   header: {
+//     backgroundColor: '#C0392B',
+//     padding: 16,
+//     flexDirection: 'row',
+//     justifyContent: 'space-between',
+//     alignItems: 'center',
+//   },
+//   greeting: { color: '#fff', fontSize: 20 },
+//   bold: { fontWeight: 'bold' },
+//   headerIcons: { flexDirection: 'row', alignItems: 'center' },
+//   iconWrapper: { marginLeft: 16, padding: 6 },
+//   searchContainer: {
+//     flexDirection: 'row',
+//     paddingHorizontal: 16,
+//     paddingVertical: 12,
+//     alignItems: 'center',
+//     gap: 8,
+//   },
+//   searchInput: {
+//     backgroundColor: '#2C2C3A',
+//     borderRadius: 8,
+//     padding: 10,
+//     color: '#fff',
+//     flex: 1,
+//   },
+//   addButton: {
+//     backgroundColor: '#F46D5D',
+//     paddingHorizontal: 16,
+//     paddingVertical: 10,
+//     borderRadius: 8,
+//   },
+//   addButtonText: {
+//     color: '#fff',
+//     fontWeight: 'bold',
+//   },
+//   visitorListContainer: {
+//     flex: 1,
+//     backgroundColor: '#2C2C3A',
+//     marginHorizontal: 12,
+//     borderRadius: 10,
+//     padding: 16,
+//     marginTop: 10,
+//     marginBottom: 80, // Add space for FAB
+//   },
+//   sectionTitle: { color: '#fff', fontSize: 16, marginBottom: 12 },
+//   visitorCard: {
+//     flexDirection: 'row',
+//     justifyContent: 'space-between',
+//     backgroundColor: '#3A3A4A',
+//     padding: 12,
+//     borderRadius: 8,
+//     marginBottom: 10,
+//     alignItems: 'center',
+//   },
+//   visitorName: { color: '#fff', fontSize: 16 },
+//   visitorIcons: { flexDirection: 'row' },
+//   visitorIcon: {
+//     marginLeft: 12,
+//     backgroundColor: '#4CAF50',
+//     padding: 6,
+//     borderRadius: 20,
+//   },
+//   fab: {
+//     position: 'absolute',
+//     width: 60,
+//     height: 60,
+//     borderRadius: 30,
+//     backgroundColor: '#C0392B',
+//     justifyContent: 'center',
+//     alignItems: 'center',
+//     bottom: 50,
+//     right: 50, // Changed from centered to right-aligned
+//     elevation: 8,
+//     shadowColor: '#000',
+//     shadowOffset: { width: 0, height: 2 },
+//     shadowOpacity: 0.3,
+//     shadowRadius: 4,
+//     zIndex: 1,
+//   },
+//   fabIcon: {
+//     fontSize: 30,
+//     color: 'white',
+//     fontWeight: 'bold',
+//     lineHeight: 30,
+//   },
+// });

@@ -1403,15 +1403,89 @@
 // export default AdminDashboard;
 
 // screens/Admin/AdminDashboard.js
-import React from 'react';
-import { View, ScrollView, StyleSheet, Text, TouchableOpacity } from 'react-native';
-import HeaderBar from '../../components/HeaderBar';
-// import VisitorCard from '../../components/VisitorCard';
-import { Ionicons } from '@expo/vector-icons';
-import colors from '../../constants/colors'; 
-// Correct import at the top of your file
-import VisitorCard from '../../components/VisiterCard';
+// import React from 'react';
+// import { View, ScrollView, StyleSheet, Text, TouchableOpacity } from 'react-native';
+// import HeaderBar from '../../components/HeaderBar';
+// // import VisitorCard from '../../components/VisitorCard';
+// import { Ionicons } from '@expo/vector-icons';
+// import colors from '../../constants/colors'; 
+// // Correct import at the top of your file
+// import VisitorCard from '../../components/VisiterCard';
 
+
+// export default function AdminDashboard({ navigation }) {
+//   const visitors = [
+//     'Suresh Khanna',
+//     'Preeti Ahuja',
+//     'Arav Sharma',
+//     'Priya Patel',
+//   ];
+
+//   return (
+//     <View style={{ flex: 1, backgroundColor: colors.background }}>
+//       <HeaderBar userName="Suraj" />
+
+//       <ScrollView style={styles.container}>
+//         <Text style={styles.label}>Today</Text>
+//         {visitors.map((name, index) => (
+//           <VisitorCard
+//             key={index}
+//             name={name}
+//             onView={() => {}}
+//             onCall={() => {}}
+//           />
+//         ))}
+//       </ScrollView>
+
+//       <TouchableOpacity 
+//   style={styles.addButton}
+//   onPress={() => navigation.navigate('VisitorForm')}
+// >
+//   <Ionicons name="add" size={30} color="#fff" />
+// </TouchableOpacity>
+//     </View>
+//   );
+// }
+
+// const styles = StyleSheet.create({
+//   container: {
+//     padding: 16,
+//   },
+//   label: {
+//     color: colors.text,
+//     fontSize: 16,
+//     marginBottom: 10,
+//   },
+//   fab: {
+//     position: 'absolute',
+//     bottom: 24,
+//     right: 24,
+//     backgroundColor: '#fff',
+//     borderRadius: 30,
+//     width: 60,
+//     height: 60,
+//     alignItems: 'center',
+//     justifyContent: 'center',
+//     shadowColor: '#000',
+//     shadowOffset: { width: 0, height: 2 },
+//     shadowOpacity: 0.25,
+//     shadowRadius: 3.5,
+//     elevation: 5,
+//   },
+// });
+
+import React from 'react';
+import {
+  View,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+} from 'react-native';
+import HeaderBar from '../../components/HeaderBar';
+import { Ionicons } from '@expo/vector-icons';
+import colors from '../../constants/colors';
+import VisitorCard from '../../components/VisiterCard';
 
 export default function AdminDashboard({ navigation }) {
   const visitors = [
@@ -1422,45 +1496,59 @@ export default function AdminDashboard({ navigation }) {
   ];
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.background }}>
+    <View style={styles.screen}>
+      {/* Header Section */}
       <HeaderBar userName="Suraj" />
 
-      <ScrollView style={styles.container}>
+      {/* Visitor List Section */}
+      <ScrollView contentContainerStyle={styles.container}>
         <Text style={styles.label}>Today</Text>
         {visitors.map((name, index) => (
           <VisitorCard
             key={index}
             name={name}
-            onView={() => {}}
-            onCall={() => {}}
+            onView={() => {
+              // TODO: View action
+              console.log('Viewing', name);
+            }}
+            onCall={() => {
+              // TODO: Call action
+              console.log('Calling', name);
+            }}
           />
         ))}
       </ScrollView>
 
-      <TouchableOpacity 
-  style={styles.addButton}
-  onPress={() => navigation.navigate('VisitorForm')}
->
-  <Ionicons name="add" size={30} color="#fff" />
-</TouchableOpacity>
+      {/* Floating Add Button */}
+      <TouchableOpacity
+        style={styles.fab}
+        onPress={() => navigation.navigate('VisitorForm')}
+      >
+        <Ionicons name="add" size={30} color="#fff" />
+      </TouchableOpacity>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+    backgroundColor: colors.background, // Typically dark like "#0D0D1A"
+  },
   container: {
     padding: 16,
+    paddingBottom: 100, // To avoid overlap with FAB
   },
   label: {
-    color: colors.text,
+    color: colors.text, // Typically "#fff"
     fontSize: 16,
     marginBottom: 10,
   },
   fab: {
     position: 'absolute',
     bottom: 24,
-    right: 24,
-    backgroundColor: '#fff',
+    alignSelf: 'center',
+    backgroundColor: '#F46D5D',
     borderRadius: 30,
     width: 60,
     height: 60,
