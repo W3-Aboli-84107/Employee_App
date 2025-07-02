@@ -112,7 +112,7 @@ const VisitorCard = ({ name, date, onView, onCall }) => {
       </View>
       <View style={styles.icons}>
         <TouchableOpacity onPress={onView}>
-          <Ionicons name="eye-outline" size={18} color="#fff" style={styles.icon} />
+          {/* <Ionicons name="eye-outline" size={18} color="#fff" style={styles.icon} /> */}
         </TouchableOpacity>
         <TouchableOpacity onPress={onCall}>
           <Ionicons 
