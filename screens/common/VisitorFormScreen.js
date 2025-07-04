@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 
 // // import React, { useState } from 'react';
 // // import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
@@ -495,6 +496,8 @@
 // });
 
 
+=======
+>>>>>>> 4e9bf1653d9abda0ea05c73f8bcd6ed38f8f127f
 import React, { useState } from 'react';
 import {
   View,

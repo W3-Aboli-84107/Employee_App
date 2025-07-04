@@ -407,6 +407,15 @@ import { useRoute } from '@react-navigation/native';
 import HeaderBar from '../../components/HeaderBar';
 import VisitorCard from '../../components/VisiterCard';
 import colors from '../../constants/colors';
+<<<<<<< HEAD
+=======
+
+const generateVisitors = (dayLabel) =>
+  Array.from({ length: 20 }, (_, i) => ({
+    name: `${dayLabel} Visitor ${i + 1}`,
+    day: dayLabel,
+  }));
+>>>>>>> 4e9bf1653d9abda0ea05c73f8bcd6ed38f8f127f
 
 export default function AdminDashboard({ navigation }) {
   const route = useRoute();
