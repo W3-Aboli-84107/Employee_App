@@ -30,15 +30,12 @@ export default function AppNavigator() {
       <Stack.Screen name="SuperAdminDashboard" component={SuperAdminDashboardScreen} />
       <Stack.Screen name="DashboardScreen" component={DashboardScreen} />
       <Stack.Screen name="VisitorForm" component={VisitorFormScreen} />
-<<<<<<< HEAD
       <Stack.Screen name="VisitorDetails" component={VisitorDetailsScreen} />
-=======
 
       <Stack.Screen name='History' component={HistoryScreen} />
 
       <Stack.Screen name="VisitorDetails" component={VisitorDetailsScreen} />
 
->>>>>>> 4e9bf1653d9abda0ea05c73f8bcd6ed38f8f127f
     </Stack.Navigator>
   );
 }
