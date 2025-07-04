@@ -90,18 +90,50 @@ const SignUpScreen = ({ navigation }) => {
       return;
     }
 
-    const userData = {
-      firstName,
-      lastName,
-      phone,
-      email,
-      address,
-      password,
-      role,
-    };
+    // const userData = {
+    //   firstName,
+    //   lastName,
+    //   phone,
+    //   email,
+    //   address,
+    //   password,
+    //   role,
+    // };
 
+    // try {
+    //   // await AsyncStorage.setItem('user', JSON.stringify(userData)); 
+    //   await AsyncStorage.setItem('users', JSON.stringify([...users, newUser]));
+    //   Alert.alert('Success', 'Registration Successful!', [
+    //     { text: 'OK', onPress: () => navigation.replace('Login') },
+    //   ]);
+    // } 
+    // catch (error) {
+    //   console.error('Error saving user data', error);
+    //   Alert.alert('Error', 'Failed to save user data. Please try again.');
+    // }
     try {
-      await AsyncStorage.setItem('user', JSON.stringify(userData));
+      const usersData = await AsyncStorage.getItem('users');
+      const users = usersData ? JSON.parse(usersData) : [];
+
+      // Check if email already exists
+      const existingUser = users.find((u) => u.email === email);
+      if (existingUser) {
+        Alert.alert('Error', 'Email already registered.');
+        return;
+      }
+
+      const newUser = {
+        firstName,
+        lastName,
+        phone,
+        email,
+        address,
+        password,
+        role,
+      };
+
+      users.push(newUser);
+      await AsyncStorage.setItem('users', JSON.stringify(users));
       Alert.alert('Success', 'Registration Successful!', [
         { text: 'OK', onPress: () => navigation.replace('Login') },
       ]);

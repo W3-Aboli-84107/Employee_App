@@ -1,3 +1,4 @@
+// LoginScreen.js
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -11,45 +12,41 @@ import {
   ActivityIndicator,
   Image
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 
-const LoginScreen = ({ navigation }) => {
-  // State management
+const LoginScreen = () => {
+  const navigation = useNavigation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [secureText, setSecureText] = useState(true);
-  const [rememberMe, setRememberMe] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [keyboardVisible, setKeyboardVisible] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
 
-  // Load saved credentials
   useEffect(() => {
-    const loadCredentials = async () => {
+    const loadRememberedCredentials = async () => {
       try {
         const remembered = await AsyncStorage.getItem('rememberMe');
         if (remembered === 'true') {
-          const savedEmail = await AsyncStorage.getItem('rememberedEmail');
-          const savedPassword = await AsyncStorage.getItem('rememberedPassword');
-          setEmail(savedEmail || '');
-          setPassword(savedPassword || '');
+          const rememberedEmail = await AsyncStorage.getItem('rememberedEmail');
+          const rememberedPassword = await AsyncStorage.getItem('rememberedPassword');
+          setEmail(rememberedEmail || '');
+          setPassword(rememberedPassword || '');
           setRememberMe(true);
         }
       } catch (error) {
-        console.error('Error loading credentials:', error);
+        console.error('Error loading remembered credentials:', error);
       }
     };
-
-    loadCredentials();
+    loadRememberedCredentials();
   }, []);
 
-  // Email validation
   const validateEmail = (email) => {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return re.test(email);
   };
 
-  // Handle login
   const handleLogin = async () => {
     if (!email.trim() || !password.trim()) {
       Alert.alert('Error', 'Please enter both email and password');
@@ -64,42 +61,33 @@ const LoginScreen = ({ navigation }) => {
     setLoading(true);
 
     try {
-      const storedUser = await AsyncStorage.getItem('user');
-      
-      if (!storedUser) {
-        Alert.alert('Error', 'No user found. Please sign up first.');
-        setLoading(false);
+      const usersData = await AsyncStorage.getItem('users');
+      const users = usersData ? JSON.parse(usersData) : [];
+
+      const user = users.find((u) => u.email === email && u.password === password);
+
+      if (!user) {
+        Alert.alert('Error', 'Invalid email or password');
         return;
       }
 
-      const user = JSON.parse(storedUser);
-
-      if (email === user.email && password === user.password) {
-        // Save credentials if remember me is checked
-        if (rememberMe) {
-          await AsyncStorage.multiSet([
-            ['rememberedEmail', email],
-            ['rememberedPassword', password],
-            ['rememberMe', 'true']
-          ]);
-        } else {
-          await AsyncStorage.multiRemove(['rememberedEmail', 'rememberedPassword']);
-        }
-
-        // Navigate based on role
-        navigation.reset({
-          index: 0,
-          routes: [{ 
-            name: user.role === 'superadmin' ? 'SuperAdminDashboard' : 'AdminDashboard'
-          }],
-        });
-
+      if (rememberMe) {
+        await AsyncStorage.multiSet([
+          ['rememberMe', 'true'],
+          ['rememberedEmail', email],
+          ['rememberedPassword', password]
+        ]);
       } else {
-        Alert.alert('Error', 'Invalid email or password');
+        await AsyncStorage.multiRemove(['rememberMe', 'rememberedEmail', 'rememberedPassword']);
       }
+
+      navigation.reset({
+        index: 0,
+        routes: [{ name: user.role === 'superadmin' ? 'SuperAdminDashboard' : 'AdminDashboard' }],
+      });
     } catch (error) {
-      Alert.alert('Error', 'Login failed. Please try again.');
       console.error('Login error:', error);
+      Alert.alert('Error', 'Login failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -110,23 +98,14 @@ const LoginScreen = ({ navigation }) => {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={styles.container}
     >
-      {/* Logo Header (hidden when keyboard is visible) */}
-      {!keyboardVisible && (
-        <View style={styles.logoContainer}>
-          <Image
-            source={require('../../assets/logo.png')}
-            style={styles.logo}
-            resizeMode="contain"
-          />
-          <Text style={styles.welcomeText}>Welcome Back</Text>
-        </View>
-      )}
+      <View style={styles.logoContainer}>
+        <Image source={require('../../assets/logo.png')} style={styles.logo} />
+        <Text style={styles.welcomeText}>Welcome Back</Text>
+      </View>
 
-      {/* Form Container */}
       <View style={styles.formContainer}>
         <Text style={styles.loginText}>Login to your account</Text>
-        
-        {/* Email Input */}
+
         <View style={styles.inputContainer}>
           <Ionicons name="mail-outline" size={20} color="#aaa" style={styles.inputIcon} />
           <TextInput
@@ -137,12 +116,9 @@ const LoginScreen = ({ navigation }) => {
             autoCapitalize="none"
             value={email}
             onChangeText={setEmail}
-            onFocus={() => setKeyboardVisible(true)}
-            onBlur={() => setKeyboardVisible(false)}
           />
         </View>
 
-        {/* Password Input */}
         <View style={styles.inputContainer}>
           <Ionicons name="lock-closed-outline" size={20} color="#aaa" style={styles.inputIcon} />
           <TextInput
@@ -152,8 +128,6 @@ const LoginScreen = ({ navigation }) => {
             secureTextEntry={secureText}
             value={password}
             onChangeText={setPassword}
-            onFocus={() => setKeyboardVisible(true)}
-            onBlur={() => setKeyboardVisible(false)}
           />
           <TouchableOpacity
             onPress={() => setSecureText(!secureText)}
@@ -167,38 +141,30 @@ const LoginScreen = ({ navigation }) => {
           </TouchableOpacity>
         </View>
 
-        {/* Remember Me & Forgot Password */}
-        <View style={styles.rememberContainer}>
+        <View style={styles.rememberMeContainer}>
           <TouchableOpacity
-            style={styles.checkboxContainer}
+            style={styles.checkboxWrapper}
             onPress={() => setRememberMe(!rememberMe)}
           >
-            <View style={[styles.checkbox, rememberMe && styles.checkedBox]}>
+            <View style={[styles.checkbox, rememberMe && styles.checked]}>
               {rememberMe && <Ionicons name="checkmark" size={14} color="#fff" />}
             </View>
-            <Text style={styles.rememberText}>Remember me</Text>
+            <Text style={styles.rememberMeText}>Remember Me</Text>
           </TouchableOpacity>
-          
-          <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')}>
+
+          <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword', { email })}>
             <Text style={styles.forgotPassword}>Forgot password?</Text>
           </TouchableOpacity>
         </View>
 
-        {/* Login Button */}
         <TouchableOpacity
           style={[styles.loginButton, loading && styles.disabledButton]}
           onPress={handleLogin}
           disabled={loading}
-          activeOpacity={0.8}
         >
-          {loading ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <Text style={styles.loginButtonText}>Log In</Text>
-          )}
+          {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.loginButtonText}>Log In</Text>}
         </TouchableOpacity>
 
-        {/* Sign Up Link */}
         <View style={styles.signupContainer}>
           <Text style={styles.signupText}>Don't have an account? </Text>
           <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
@@ -209,6 +175,7 @@ const LoginScreen = ({ navigation }) => {
     </KeyboardAvoidingView>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {
@@ -223,7 +190,6 @@ const styles = StyleSheet.create({
   logo: {
     width: 100,
     height: 100,
-    marginBottom: 20,
   },
   welcomeText: {
     fontSize: 24,
@@ -233,7 +199,6 @@ const styles = StyleSheet.create({
   formContainer: {
     flex: 1,
     paddingHorizontal: 25,
-    paddingTop: 20,
   },
   loginText: {
     fontSize: 18,
@@ -263,30 +228,30 @@ const styles = StyleSheet.create({
   eyeIcon: {
     padding: 10,
   },
-  rememberContainer: {
+  rememberMeContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 25,
   },
-  checkboxContainer: {
+  checkboxWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   checkbox: {
     width: 20,
     height: 20,
-    borderRadius: 5,
+    borderRadius: 4,
     borderWidth: 1,
     borderColor: '#F46D5D',
-    justifyContent: 'center',
-    alignItems: 'center',
     marginRight: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  checkedBox: {
+  checked: {
     backgroundColor: '#F46D5D',
   },
-  rememberText: {
+  rememberMeText: {
     color: '#fff',
     fontSize: 14,
   },
@@ -300,7 +265,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 20,
   },
   disabledButton: {
     opacity: 0.7,
@@ -321,8 +285,8 @@ const styles = StyleSheet.create({
   },
   signupLink: {
     color: '#F46D5D',
-    fontSize: 14,
     fontWeight: 'bold',
+    fontSize: 14,
   },
 });
 
