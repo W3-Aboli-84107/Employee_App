@@ -17,14 +17,29 @@ export default function VisitorFormScreen({ navigation }) {
   const [whomToMeet, setWhomToMeet] = useState('');
   const [remark, setRemark] = useState('');
   const [photoUri, setPhotoUri] = useState('');
+<<<<<<< HEAD
 
+=======
+  const [panNumber, setPanNumber] = useState('');
+  const [otherIdDetails, setOtherIdDetails] = useState('');
+>>>>>>> 0bfe15c7cfb8dbee8cc4e6833479c6bbe6657dc7
   const [gender, setGender] = useState('');
   const [genderModalVisible, setGenderModalVisible] = useState(false);
 
   const [purposeOptions, setPurposeOptions] = useState([
+<<<<<<< HEAD
     { label: 'Meeting', selected: false },
     { label: 'Delivery', selected: false },
     { label: 'Interview', selected: false },
+=======
+    { id: 1, label: 'IT', value: false },
+    { id: 2, label: 'Interview', value: false },
+    { id: 3, label: 'HealthCare', value: false },
+    { id: 4, label: 'Digital Marketing', value: false },
+    { id: 5, label: 'Training', value: false },
+    { id: 6, label: 'BD', value: false },
+    { id: 7, label: 'Others', value: false },
+>>>>>>> 0bfe15c7cfb8dbee8cc4e6833479c6bbe6657dc7
   ]);
   const [purposeModalVisible, setPurposeModalVisible] = useState(false);
 
@@ -124,9 +139,15 @@ export default function VisitorFormScreen({ navigation }) {
 
       {/* Name, Phone, Email, Address */}
       {[{ icon: 'person', placeholder: 'Visitor Name', value: name, setter: setName },
+<<<<<<< HEAD
         { icon: 'call', placeholder: 'Phone number', value: phone, setter: setPhone, keyboardType: 'phone-pad', maxLength: 10 },
         { icon: 'email-outline', placeholder: 'Email', value: email, setter: setEmail, keyboardType: 'email-address' },
         { icon: 'location-outline', placeholder: 'Address', value: address, setter: setAddress }].map((field, i) => (
+=======
+      { icon: 'call', placeholder: 'Phone number', value: phone, setter: setPhone, keyboardType: 'phone-pad', maxLength: 10 },
+      { icon: 'email-outline', placeholder: 'Email', value: email, setter: setEmail, keyboardType: 'email-address' },
+      { icon: 'location-outline', placeholder: 'Address', value: address, setter: setAddress }].map((field, i) => (
+>>>>>>> 0bfe15c7cfb8dbee8cc4e6833479c6bbe6657dc7
         <View key={i} style={styles.inputBox}>
           <Ionicons name={field.icon} size={20} color="#E74C3C" style={styles.icon} />
           <TextInput
@@ -179,6 +200,7 @@ export default function VisitorFormScreen({ navigation }) {
           {selectedIdProof || 'Select ID Proof'}
         </Text>
       </TouchableOpacity>
+<<<<<<< HEAD
 
       {/* Aadhar Number */}
       {selectedIdProof === 'Aadhar Card' && (
@@ -196,6 +218,54 @@ export default function VisitorFormScreen({ navigation }) {
         </View>
       )}
 
+=======
+
+      {/* Aadhar Number */}
+      {selectedIdProof === 'Aadhar Card' && (
+        <View style={styles.inputBox}>
+          <MaterialCommunityIcons name="card-bulleted-outline" size={20} color="#E74C3C" style={styles.icon} />
+          <TextInput
+            placeholder="Enter your Aadhar number"
+            placeholderTextColor="#aaa"
+            style={styles.input}
+            value={aadharNumber}
+            onChangeText={setAadharNumber}
+            keyboardType="numeric"
+            maxLength={12}
+          />
+          {/* PanCard Number */}
+          {selectedIdProof === 'Pan Card' && (
+            <View style={styles.inputBox}>
+              <MaterialCommunityIcons name="card-text-outline" size={20} color="#E74C3C" style={styles.icon} />
+              <TextInput
+                placeholder="Enter your PAN number"
+                placeholderTextColor="#aaa"
+                style={styles.input}
+                value={panNumber}
+                onChangeText={setPanNumber}
+                autoCapitalize="characters"
+                maxLength={10}
+              />
+            </View>
+          )}
+
+          {selectedIdProof === 'Others' && (
+            <View style={styles.inputBox}>
+              <MaterialCommunityIcons name="card-text-outline" size={20} color="#E74C3C" style={styles.icon} />
+              <TextInput
+                placeholder="Enter ID details"
+                placeholderTextColor="#aaa"
+                style={styles.input}
+                value={otherIdDetails}
+                onChangeText={setOtherIdDetails}
+              />
+            </View>
+          )}
+
+        </View>
+      )}
+
+>>>>>>> 0bfe15c7cfb8dbee8cc4e6833479c6bbe6657dc7
       {/* Reference */}
       <TouchableOpacity style={styles.inputBox} onPress={() => setReferenceModalVisible(true)}>
         <MaterialCommunityIcons name="account-search-outline" size={20} color="#E74C3C" style={styles.icon} />
@@ -287,6 +357,7 @@ export default function VisitorFormScreen({ navigation }) {
           </View>
         </View>
       </Modal>
+<<<<<<< HEAD
 
       {/* ID Proof Modal */}
       <Modal visible={idProofModalVisible} transparent animationType="fade">
@@ -310,6 +381,105 @@ export default function VisitorFormScreen({ navigation }) {
               <Text style={styles.photoButtonText}>Close</Text>
             </TouchableOpacity>
           </View>
+=======
+
+      {/* ID Proof Modal */}
+      <Modal visible={idProofModalVisible} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalBox}>
+            <Text style={styles.modalTitle}>Select ID Proof</Text>
+
+            {['Pan Card', 'Aadhar Card', 'Others'].map((option) => (
+              <TouchableOpacity
+                key={option}
+                style={styles.radioItem}
+                onPress={() => {
+                  setSelectedIdProof(option);
+                  if (option !== 'Aadhar Card') setAadharNumber('');
+                  if (option !== 'Pan Card') setPanNumber('');
+                  if (option !== 'Others') setOtherIdDetails('');
+                }}
+              >
+                <Ionicons
+                  name={selectedIdProof === option ? 'radio-button-on' : 'radio-button-off'}
+                  size={20}
+                  color="#E74C3C"
+                />
+                <Text style={styles.modalText}>{option}</Text>
+              </TouchableOpacity>
+            ))}
+
+            {/* Aadhar input field */}
+            {selectedIdProof === 'Aadhar Card' && (
+              <View style={styles.inputBox}>
+                <MaterialCommunityIcons
+                  name="card-account-details-outline"
+                  size={20}
+                  color="#E74C3C"
+                  style={styles.icon}
+                />
+                <TextInput
+                  placeholder="Enter your Aadhar number"
+                  placeholderTextColor="#aaa"
+                  style={styles.input}
+                  value={aadharNumber}
+                  onChangeText={setAadharNumber}
+                  keyboardType="numeric"
+                  maxLength={12}
+                />
+              </View>
+            )}
+
+            {/* PAN Card input field */}
+            {selectedIdProof === 'Pan Card' && (
+              <View style={styles.inputBox}>
+                <MaterialCommunityIcons
+                  name="card-text-outline"
+                  size={20}
+                  color="#E74C3C"
+                  style={styles.icon}
+                />
+                <TextInput
+                  placeholder="Enter your PAN number"
+                  placeholderTextColor="#aaa"
+                  style={styles.input}
+                  value={panNumber}
+                  onChangeText={(text) => setPanNumber(text.toUpperCase())}
+                  autoCapitalize="characters"
+                  maxLength={10}
+                />
+              </View>
+            )}
+
+            {/* Others ID input field */}
+            {selectedIdProof === 'Others' && (
+              <View style={styles.inputBox}>
+                <MaterialCommunityIcons
+                  name="card-text-outline"
+                  size={20}
+                  color="#E74C3C"
+                  style={styles.icon}
+                />
+                <TextInput
+                  placeholder="Enter ID details"
+                  placeholderTextColor="#aaa"
+                  style={styles.input}
+                  value={otherIdDetails}
+                  onChangeText={setOtherIdDetails}
+                />
+              </View>
+            )}
+
+            <TouchableOpacity
+              onPress={() => setIdProofModalVisible(false)}
+              style={styles.closeButton}
+            >
+              <Text style={styles.photoButtonText}>Close</Text>
+            </TouchableOpacity>
+          </View>
+
+
+>>>>>>> 0bfe15c7cfb8dbee8cc4e6833479c6bbe6657dc7
         </View>
       </Modal>
     </ScrollView>
@@ -346,4 +516,8 @@ const styles = StyleSheet.create({
   radioItem: { flexDirection: 'row', alignItems: 'center', marginVertical: 6 },
   modalText: { fontSize: 16, marginLeft: 10 },
   closeButton: { backgroundColor: '#E74C3C', padding: 10, marginTop: 10, borderRadius: 6, alignItems: 'center' },
+<<<<<<< HEAD
 });
+=======
+});
+>>>>>>> 0bfe15c7cfb8dbee8cc4e6833479c6bbe6657dc7

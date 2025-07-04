@@ -122,8 +122,8 @@ const styles = StyleSheet.create({
   },
   fab: {
     position: 'absolute',
-    bottom: 24,
-    right: 24,
+    bottom: 50,
+    alignSelf: 'center', // center horizontally
     backgroundColor: colors.primary,
     borderRadius: 30,
     width: 60,
@@ -315,3 +315,4 @@ const styles = StyleSheet.create({
 //     borderWidth: 1,
 //   },
 // });
+
