@@ -1,6 +1,5 @@
 // import React from 'react';
 // import { createNativeStackNavigator } from '@react-navigation/native-stack';
-
 // import welcomeScreens from '../screens/auth/welcomeScreens';
 // import loginScreens from '../screens/auth/loginScreens';
 // import signupscreen from '../screens/auth/signupscreen';
@@ -42,6 +41,11 @@ import SuperAdminDashboardScreen from '../screens/SuperAdmin/SuperAdminDashboard
 import DashboardScreen from '../screens/common/DashboardScreen';
 import VisitorFormScreen from '../screens/common/VisitorFormScreen';
 import HistoryScreen from '../screens/common/HistoryScreen';
+import ForgotPasswordScreen from '../screens/common/ForgotPasswordScreen';
+import OTPScreen from '../screens/common/OTPScreen';
+import OtpSuccessfulScreen from '../screens/common/OtpSuccessfulScreen';
+import NewPasswordScreen from '../screens/common/NewPasswordScreen';
+import OtpUnsuccessfulScreen from '../screens/common/OtpUnsuccessfulScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -58,6 +62,12 @@ export default function AppNavigator() {
       <Stack.Screen name="DashboardScreen" component={DashboardScreen} />
       <Stack.Screen name="VisitorForm" component={VisitorFormScreen} />
       <Stack.Screen name='History' component={HistoryScreen} />
+      <Stack.Screen name='ForgotPassword' component={ForgotPasswordScreen} />
+      <Stack.Screen name='OTPScreen' component={OTPScreen} />
+      <Stack.Screen name='OtpSuccess' component={OtpSuccessfulScreen} />
+      <Stack.Screen name='OtpUnsuccess' component={OtpUnsuccessfulScreen} />
+      <Stack.Screen name='NewPassword' component={NewPasswordScreen} />
+
     </Stack.Navigator>
   );
 }
