@@ -1,460 +1,457 @@
-
-<<<<<<< HEAD
-
-=======
->>>>>>> 9402c7fa99f5ca26d6854e35b4999236d456834d
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-  View,
-  Text,
-  TextInput,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-  Alert,
-  Image,
-  Modal
+  View, Text, TextInput, StyleSheet, TouchableOpacity, ScrollView, Alert,
+  Modal, Pressable, Image
 } from 'react-native';
 import { Ionicons, MaterialCommunityIcons, FontAwesome } from '@expo/vector-icons';
-import { Picker } from '@react-native-picker/picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as ImagePicker from 'expo-image-picker';
+import Checkbox from 'expo-checkbox';
 
 export default function VisitorFormScreen({ navigation }) {
-  const [formData, setFormData] = useState({
-    name: '',
-    phone: '',
-    email: '',
-    address: '',
-    gender: '',
-    description: '',
-    whomToMeet: '',
-    idProof: '',
-    reference: '',
-  });
-  const [photo, setPhoto] = useState(null);
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
+  const [address, setAddress] = useState('');
+  const [description, setDescription] = useState('');
+  const [whomToMeet, setWhomToMeet] = useState('');
   const [remark, setRemark] = useState('');
+  const [photoUri, setPhotoUri] = useState('');
+  const [panNumber, setPanNumber] = useState('');
+  const [otherIdDetails, setOtherIdDetails] = useState('');
+  const [gender, setGender] = useState('');
+  const [genderModalVisible, setGenderModalVisible] = useState(false);
+
   const [purposeOptions, setPurposeOptions] = useState([
-    { id: 1, label: 'Meeting', value: false },
-    { id: 2, label: 'Delivery', value: false },
-    { id: 3, label: 'Interview', value: false },
-    { id: 4, label: 'Personal', value: false },
+    { id: 1, label: 'IT', value: false },
+    { id: 2, label: 'Interview', value: false },
+    { id: 3, label: 'HealthCare', value: false },
+    { id: 4, label: 'Digital Marketing', value: false },
+    { id: 5, label: 'Training', value: false },
+    { id: 6, label: 'BD', value: false },
+    { id: 7, label: 'Others', value: false },
   ]);
-  const [modalVisible, setModalVisible] = useState(false);
+  const [purposeModalVisible, setPurposeModalVisible] = useState(false);
 
-  const handleInputChange = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
+  const [referenceOptions, setReferenceOptions] = useState([
+    { label: 'Manager', selected: false },
+    { label: 'HR', selected: false },
+    { label: 'Employee', selected: false },
+    { label: 'Friend', selected: false },
+  ]);
+  const [referenceModalVisible, setReferenceModalVisible] = useState(false);
 
-  const handleTakePhoto = async () => {
-    const { status } = await ImagePicker.requestCameraPermissionsAsync();
-    if (status !== 'granted') {
-      Alert.alert('Permission required', 'Camera access is needed to take photos');
-      return;
-    }
-    const result = await ImagePicker.launchCameraAsync({
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 0.8,
+  const [idProofModalVisible, setIdProofModalVisible] = useState(false);
+  const [selectedIdProof, setSelectedIdProof] = useState('');
+  const [aadharNumber, setAadharNumber] = useState('');
+
+  useEffect(() => {
+    (async () => {
+      const { status } = await ImagePicker.requestCameraPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission Denied', 'Camera access is required to capture photo.');
+      }
+    })();
+  }, []);
+
+  const takePhoto = async () => {
+    let result = await ImagePicker.launchCameraAsync({
+      allowsEditing: false,
+      aspect: [1, 1],
+      quality: 0.7,
     });
     if (!result.canceled) {
-      setPhoto(result.assets[0].uri);
+      setPhotoUri(result.assets[0].uri);
     }
   };
 
-  const togglePurposeOption = (id) => {
-    setPurposeOptions(prevOptions =>
-      prevOptions.map(option =>
-        option.id === id ? { ...option, value: !option.value } : option
-      )
-    );
-  };
+  const getSelectedPurpose = () =>
+    purposeOptions.filter(p => p.selected).map(p => p.label).join(', ');
+  const getSelectedReference = () =>
+    referenceOptions.filter(r => r.selected).map(r => r.label).join(', ');
 
-  const getSelectedPurposes = () => {
-    return purposeOptions
-      .filter(option => option.value)
-      .map(option => option.label)
-      .join(', ');
-  };
-
-  const handleSubmit = () => {
-    if (!formData.name || !formData.phone || !formData.whomToMeet) {
-      Alert.alert('Missing Information', 'Please fill in all required fields');
+  const handleSave = async () => {
+    if (!name.trim() || !phone.trim() || !email.trim() || !address.trim() || !gender || !getSelectedPurpose() || !description.trim() || !whomToMeet.trim()) {
+      Alert.alert('Validation Error', 'All required fields must be filled.');
       return;
     }
-    if (!/^[0-9]{10,15}$/.test(formData.phone)) {
-      Alert.alert('Invalid Phone', 'Please enter a valid 10-15 digit phone number');
+    if (!/^\d{10}$/.test(phone)) {
+      Alert.alert('Invalid Phone Number', 'Phone number must be 10 digits.');
       return;
     }
-    if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      Alert.alert('Invalid Email', 'Please enter a valid email address');
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      Alert.alert('Invalid Email', 'Enter a valid email address.');
+      return;
+    }
+    if (selectedIdProof === 'Aadhar Card' && !/^\d{12}$/.test(aadharNumber)) {
+      Alert.alert('Invalid Aadhar Number', 'Aadhar number must be 12 digits.');
+      return;
+    }
+    if (!photoUri) {
+      Alert.alert('Photo Missing', 'Please capture a photo.');
       return;
     }
 
     const visitorData = {
-      ...formData,
-      purposes: purposeOptions.filter(option => option.value).map(option => option.label),
-      photo,
+      name,
+      phone,
+      email,
+      address,
+      gender,
+      visitType: getSelectedPurpose(),
+      inTime: new Date().toLocaleTimeString(),
+      outTime: '',
+      purpose: description,
+      department: whomToMeet,
+      idProof: selectedIdProof,
+      aadharNumber: selectedIdProof === 'Aadhar Card' ? aadharNumber : '',
+      reference: getSelectedReference(),
       remark,
-      checkInTime: new Date().toISOString(),
+      photoUrl: photoUri,
+      timestamp: Date.now(),
     };
-    
-    console.log('Visitor Data:', visitorData);
-    Alert.alert('Success', 'Visitor information saved successfully');
-    navigation.goBack();
+
+    try {
+      const existingData = await AsyncStorage.getItem('visitors');
+      const visitors = existingData ? JSON.parse(existingData) : [];
+      visitors.push(visitorData);
+      await AsyncStorage.setItem('visitors', JSON.stringify(visitors));
+      navigation.navigate('VisitorDetails', { visitor: visitorData });
+    } catch (error) {
+      console.error('Error saving visitor:', error);
+    }
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons name="arrow-back" size={24} color="#fff" />
-        </TouchableOpacity>
-        <Text style={styles.title}>Visitor's Detail</Text>
+    <ScrollView style={styles.container}>
+      <Text style={styles.title}>Visitor’s Detail</Text>
+
+      {/* Name, Phone, Email, Address */}
+      {[{ icon: 'person', placeholder: 'Visitor Name', value: name, setter: setName },
+      { icon: 'call', placeholder: 'Phone number', value: phone, setter: setPhone, keyboardType: 'phone-pad', maxLength: 10 },
+      { icon: 'email-outline', placeholder: 'Email', value: email, setter: setEmail, keyboardType: 'email-address' },
+      { icon: 'location-outline', placeholder: 'Address', value: address, setter: setAddress }].map((field, i) => (
+        <View key={i} style={styles.inputBox}>
+          <Ionicons name={field.icon} size={20} color="#E74C3C" style={styles.icon} />
+          <TextInput
+            placeholder={field.placeholder}
+            placeholderTextColor="#aaa"
+            style={styles.input}
+            value={field.value}
+            onChangeText={field.setter}
+            keyboardType={field.keyboardType || 'default'}
+            maxLength={field.maxLength}
+          />
+        </View>
+      ))}
+
+      {/* Gender */}
+      <TouchableOpacity style={styles.inputBox} onPress={() => setGenderModalVisible(true)}>
+        <Ionicons name="male-female" size={20} color="#E74C3C" style={styles.icon} />
+        <Text style={[styles.input, { paddingTop: 12 }]}>{gender || 'Select Gender'}</Text>
+      </TouchableOpacity>
+
+      {/* Purpose */}
+      <TouchableOpacity style={styles.inputBox} onPress={() => setPurposeModalVisible(true)}>
+        <Ionicons name="calendar" size={20} color="#E74C3C" style={styles.icon} />
+        <Text style={[styles.input, { paddingTop: 12 }]}>{getSelectedPurpose() || 'Select Purpose'}</Text>
+      </TouchableOpacity>
+
+      {/* Description */}
+      <View style={styles.textAreaBox}>
+        <Ionicons name="document-text-outline" size={20} color="#E74C3C" style={styles.icon} />
+        <TextInput
+          placeholder="Description"
+          placeholderTextColor="#aaa"
+          style={styles.textArea}
+          multiline
+          value={description}
+          onChangeText={setDescription}
+        />
       </View>
 
-      <View style={styles.section}>
-        {/* Basic Inputs */}
-        {[
-          { icon: 'person-outline', field: 'name', placeholder: 'Visitor Name*' },
-          { icon: 'call-outline', field: 'phone', placeholder: 'Phone Number*', keyboardType: 'phone-pad' },
-          { icon: 'mail-outline', field: 'email', placeholder: 'Email', keyboardType: 'email-address' },
-          { icon: 'location-outline', field: 'address', placeholder: 'Address' }
-        ].map((item, index) => (
-          <View key={index} style={styles.inputGroup}>
-            <Ionicons name={item.icon} size={20} color="#F46D5D" />
-            <TextInput
-              style={styles.input}
-              placeholder={item.placeholder}
-              placeholderTextColor="#aaa"
-              value={formData[item.field]}
-              keyboardType={item.keyboardType || 'default'}
-              onChangeText={text => handleInputChange(item.field, text)}
-            />
-          </View>
-        ))}
+      {/* Whom to meet */}
+      <View style={styles.inputBox}>
+        <FontAwesome name="users" size={20} color="#E74C3C" style={styles.icon} />
+        <TextInput placeholder="Whom to meet" placeholderTextColor="#aaa" style={styles.input} value={whomToMeet} onChangeText={setWhomToMeet} />
+      </View>
 
-        {/* Gender Picker */}
-        <View style={styles.inputGroup}>
-          <Ionicons name="male-female-outline" size={20} color="#F46D5D" />
-          <Picker
-            selectedValue={formData.gender}
-            onValueChange={value => handleInputChange('gender', value)}
-            style={styles.picker}
-            dropdownIconColor="#F46D5D"
-          >
-            <Picker.Item label="Select Gender" value="" />
-            <Picker.Item label="Male" value="male" />
-            <Picker.Item label="Female" value="female" />
-            <Picker.Item label="Other" value="other" />
-          </Picker>
-        </View>
+      {/* ID Proof */}
+      <TouchableOpacity style={styles.inputBox} onPress={() => setIdProofModalVisible(true)}>
+        <MaterialCommunityIcons name="card-account-details-outline" size={20} color="#E74C3C" style={styles.icon} />
+        <Text style={[styles.input, { paddingTop: 12 }]}>
+          {selectedIdProof || 'Select ID Proof'}
+        </Text>
+      </TouchableOpacity>
 
-        {/* Purpose Multi-select */}
-        <TouchableOpacity 
-          style={styles.inputGroup} 
-          onPress={() => setModalVisible(true)}
-        >
-          <Ionicons name="calendar-outline" size={20} color="#F46D5D" />
-          <Text style={[styles.input, { color: getSelectedPurposes() ? '#fff' : '#aaa' }]}>
-            {getSelectedPurposes() || 'Purpose of Visit'}
-          </Text>
-        </TouchableOpacity>
-
-        {/* Purpose Selection Modal */}
-        <Modal
-          visible={modalVisible}
-          animationType="slide"
-          transparent
-          onRequestClose={() => setModalVisible(false)}
-        >
-          <View style={styles.modalContainer}>
-            <View style={styles.modalContent}>
-              <Text style={styles.modalTitle}>Select Purpose(s)</Text>
-              
-              {purposeOptions.map((option) => (
-                <View key={option.id} style={styles.checkboxContainer}>
-                  <Checkbox
-                    value={option.value}
-                    onValueChange={() => togglePurposeOption(option.id)}
-                    color={option.value ? '#F46D5D' : undefined}
-                  />
-                  <Text style={styles.checkboxLabel}>{option.label}</Text>
-                </View>
-              ))}
-              
-              <TouchableOpacity 
-                onPress={() => setModalVisible(false)} 
-                style={styles.modalButton}
-              >
-                <Text style={styles.modalButtonText}>Done</Text>
-              </TouchableOpacity>
+      {/* Aadhar Number */}
+      {selectedIdProof === 'Aadhar Card' && (
+        <View style={styles.inputBox}>
+          <MaterialCommunityIcons name="card-bulleted-outline" size={20} color="#E74C3C" style={styles.icon} />
+          <TextInput
+            placeholder="Enter your Aadhar number"
+            placeholderTextColor="#aaa"
+            style={styles.input}
+            value={aadharNumber}
+            onChangeText={setAadharNumber}
+            keyboardType="numeric"
+            maxLength={12}
+          />
+          {/* PanCard Number */}
+          {selectedIdProof === 'Pan Card' && (
+            <View style={styles.inputBox}>
+              <MaterialCommunityIcons name="card-text-outline" size={20} color="#E74C3C" style={styles.icon} />
+              <TextInput
+                placeholder="Enter your PAN number"
+                placeholderTextColor="#aaa"
+                style={styles.input}
+                value={panNumber}
+                onChangeText={setPanNumber}
+                autoCapitalize="characters"
+                maxLength={10}
+              />
             </View>
+          )}
+
+          {selectedIdProof === 'Others' && (
+            <View style={styles.inputBox}>
+              <MaterialCommunityIcons name="card-text-outline" size={20} color="#E74C3C" style={styles.icon} />
+              <TextInput
+                placeholder="Enter ID details"
+                placeholderTextColor="#aaa"
+                style={styles.input}
+                value={otherIdDetails}
+                onChangeText={setOtherIdDetails}
+              />
+            </View>
+          )}
+
+        </View>
+      )}
+
+      {/* Reference */}
+      <TouchableOpacity style={styles.inputBox} onPress={() => setReferenceModalVisible(true)}>
+        <MaterialCommunityIcons name="account-search-outline" size={20} color="#E74C3C" style={styles.icon} />
+        <Text style={[styles.input, { paddingTop: 12 }]}>{getSelectedReference() || 'Select Reference'}</Text>
+      </TouchableOpacity>
+
+      {/* Photo capture */}
+      <View style={styles.photoSection}>
+        {photoUri ? <Image source={{ uri: photoUri }} style={styles.image} /> : <Text style={styles.photoPlaceholderText}>No photo captured</Text>}
+        <TouchableOpacity onPress={takePhoto} style={styles.photoButton}>
+          <Text style={styles.photoButtonText}>Capture Photo</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Remark */}
+      <View style={styles.textAreaBox}>
+        <MaterialCommunityIcons name="comment-outline" size={20} color="#E74C3C" style={styles.icon} />
+        <TextInput placeholder="Remark (optional)" placeholderTextColor="#aaa" style={styles.textArea} multiline value={remark} onChangeText={setRemark} />
+      </View>
+
+      {/* Action buttons */}
+      <View style={styles.actionRow}>
+        <TouchableOpacity style={styles.cancelButton} onPress={() => navigation.goBack()}>
+          <Text style={styles.actionText}>Cancel</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+          <Text style={styles.actionText}>Save</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Gender Modal */}
+      <Modal visible={genderModalVisible} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalBox}>
+            <Text style={styles.modalTitle}>Select Gender</Text>
+            {['Male', 'Female', 'Other'].map(option => (
+              <TouchableOpacity key={option} style={styles.radioItem} onPress={() => { setGender(option); setGenderModalVisible(false); }}>
+                <Ionicons name={gender === option ? 'radio-button-on' : 'radio-button-off'} size={20} color="#E74C3C" />
+                <Text style={styles.modalText}>{option}</Text>
+              </TouchableOpacity>
+            ))}
+            <TouchableOpacity onPress={() => setGenderModalVisible(false)} style={styles.closeButton}>
+              <Text style={styles.photoButtonText}>Close</Text>
+            </TouchableOpacity>
           </View>
-        </Modal>
-
-        {/* Description */}
-        <View style={[styles.inputGroup, { alignItems: 'flex-start' }]}>
-          <Ionicons name="document-text-outline" size={20} color="#F46D5D" />
-          <TextInput
-            style={[styles.input, { height: 80, textAlignVertical: 'top' }]}
-            placeholder="Description"
-            placeholderTextColor="#aaa"
-            multiline
-            value={formData.description}
-            onChangeText={text => handleInputChange('description', text)}
-          />
         </View>
+      </Modal>
 
-        {/* Meeting Info */}
-        <View style={styles.inputGroup}>
-          <FontAwesome name="user-o" size={20} color="#F46D5D" />
-          <TextInput
-            style={styles.input}
-            placeholder="Whom to Meet*"
-            placeholderTextColor="#aaa"
-            value={formData.whomToMeet}
-            onChangeText={text => handleInputChange('whomToMeet', text)}
-          />
+      {/* Purpose Modal */}
+      <Modal visible={purposeModalVisible} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalBox}>
+            <Text style={styles.modalTitle}>Select Purpose</Text>
+            {purposeOptions.map((option, i) => (
+              <TouchableOpacity key={i} style={styles.checkboxItem} onPress={() => {
+                const updated = [...purposeOptions];
+                updated[i].selected = !updated[i].selected;
+                setPurposeOptions(updated);
+              }}>
+                <Checkbox value={option.selected} color="#E74C3C" />
+                <Text style={styles.modalText}>{option.label}</Text>
+              </TouchableOpacity>
+            ))}
+            <TouchableOpacity onPress={() => setPurposeModalVisible(false)} style={styles.closeButton}>
+              <Text style={styles.photoButtonText}>Close</Text>
+            </TouchableOpacity>
+          </View>
         </View>
+      </Modal>
 
-        <View style={styles.inputGroup}>
-          <MaterialCommunityIcons name="card-account-details-outline" size={20} color="#F46D5D" />
-          <TextInput
-            style={styles.input}
-            placeholder="ID Proof (optional)"
-            placeholderTextColor="#aaa"
-            value={formData.idProof}
-            onChangeText={text => handleInputChange('idProof', text)}
-          />
+      {/* Reference Modal */}
+      <Modal visible={referenceModalVisible} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalBox}>
+            <Text style={styles.modalTitle}>Select Reference</Text>
+            {referenceOptions.map((option, i) => (
+              <TouchableOpacity key={i} style={styles.checkboxItem} onPress={() => {
+                const updated = [...referenceOptions];
+                updated[i].selected = !updated[i].selected;
+                setReferenceOptions(updated);
+              }}>
+                <Checkbox value={option.selected} color="#E74C3C" />
+                <Text style={styles.modalText}>{option.label}</Text>
+              </TouchableOpacity>
+            ))}
+            <TouchableOpacity onPress={() => setReferenceModalVisible(false)} style={styles.closeButton}>
+              <Text style={styles.photoButtonText}>Close</Text>
+            </TouchableOpacity>
+          </View>
         </View>
+      </Modal>
 
-        <View style={styles.inputGroup}>
-          <MaterialCommunityIcons name="account-search-outline" size={20} color="#F46D5D" />
-          <Picker
-            selectedValue={formData.reference}
-            onValueChange={value => handleInputChange('reference', value)}
-            style={styles.picker}
-            dropdownIconColor="#F46D5D"
-          >
-            <Picker.Item label="Reference By (optional)" value="" />
-            <Picker.Item label="Manager" value="manager" />
-            <Picker.Item label="HR" value="hr" />
-            <Picker.Item label="Employee" value="employee" />
-          </Picker>
+      {/* ID Proof Modal */}
+      <Modal visible={idProofModalVisible} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalBox}>
+            <Text style={styles.modalTitle}>Select ID Proof</Text>
+
+            {['Pan Card', 'Aadhar Card', 'Others'].map((option) => (
+              <TouchableOpacity
+                key={option}
+                style={styles.radioItem}
+                onPress={() => {
+                  setSelectedIdProof(option);
+                  if (option !== 'Aadhar Card') setAadharNumber('');
+                  if (option !== 'Pan Card') setPanNumber('');
+                  if (option !== 'Others') setOtherIdDetails('');
+                }}
+              >
+                <Ionicons
+                  name={selectedIdProof === option ? 'radio-button-on' : 'radio-button-off'}
+                  size={20}
+                  color="#E74C3C"
+                />
+                <Text style={styles.modalText}>{option}</Text>
+              </TouchableOpacity>
+            ))}
+
+            {/* Aadhar input field */}
+            {selectedIdProof === 'Aadhar Card' && (
+              <View style={styles.inputBox}>
+                <MaterialCommunityIcons
+                  name="card-account-details-outline"
+                  size={20}
+                  color="#E74C3C"
+                  style={styles.icon}
+                />
+                <TextInput
+                  placeholder="Enter your Aadhar number"
+                  placeholderTextColor="#aaa"
+                  style={styles.input}
+                  value={aadharNumber}
+                  onChangeText={setAadharNumber}
+                  keyboardType="numeric"
+                  maxLength={12}
+                />
+              </View>
+            )}
+
+            {/* PAN Card input field */}
+            {selectedIdProof === 'Pan Card' && (
+              <View style={styles.inputBox}>
+                <MaterialCommunityIcons
+                  name="card-text-outline"
+                  size={20}
+                  color="#E74C3C"
+                  style={styles.icon}
+                />
+                <TextInput
+                  placeholder="Enter your PAN number"
+                  placeholderTextColor="#aaa"
+                  style={styles.input}
+                  value={panNumber}
+                  onChangeText={(text) => setPanNumber(text.toUpperCase())}
+                  autoCapitalize="characters"
+                  maxLength={10}
+                />
+              </View>
+            )}
+
+            {/* Others ID input field */}
+            {selectedIdProof === 'Others' && (
+              <View style={styles.inputBox}>
+                <MaterialCommunityIcons
+                  name="card-text-outline"
+                  size={20}
+                  color="#E74C3C"
+                  style={styles.icon}
+                />
+                <TextInput
+                  placeholder="Enter ID details"
+                  placeholderTextColor="#aaa"
+                  style={styles.input}
+                  value={otherIdDetails}
+                  onChangeText={setOtherIdDetails}
+                />
+              </View>
+            )}
+
+            <TouchableOpacity
+              onPress={() => setIdProofModalVisible(false)}
+              style={styles.closeButton}
+            >
+              <Text style={styles.photoButtonText}>Close</Text>
+            </TouchableOpacity>
+          </View>
+
+
         </View>
-      </View>
-
-      {/* Photo & Remark */}
-      <View style={styles.section}>
-        <View style={styles.rowButtons}>
-          <TouchableOpacity style={styles.photoButton} onPress={handleTakePhoto}>
-            <Ionicons name="camera" size={20} color="#fff" />
-            <Text style={styles.buttonText}>Photo</Text>
-            {photo && <View style={styles.photoIndicator} />}
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={styles.remarkButton} 
-            onPress={() => navigation.navigate('Remark', { remark, setRemark })}
-          >
-            <Ionicons name="create-outline" size={20} color="#fff" />
-            <Text style={styles.buttonText}>Remark (optional)</Text>
-          </TouchableOpacity>
-        </View>
-        {photo && <Image source={{ uri: photo }} style={styles.photoPreview} />}
-      </View>
-
-      {/* Action Buttons */}
-      <View style={styles.actionButtons}>
-        <TouchableOpacity 
-          style={styles.cancelButton} 
-          onPress={() => navigation.goBack()}
-        >
-          <Text style={styles.cancelButtonText}>Cancel</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity 
-          style={styles.saveButton} 
-          onPress={handleSubmit}
-        >
-          <Text style={styles.saveButtonText}>Save Visitor</Text>
-        </TouchableOpacity>
-      </View>
+      </Modal>
     </ScrollView>
   );
 }
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#0D1117',
-  },
-  contentContainer: {
-    padding: 16,
-    paddingBottom: 40,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 24,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#fff',
-    marginLeft: 16,
-  },
-  section: {
-    marginBottom: 24,
-    backgroundColor: '#161B22',
-    borderRadius: 10,
-    padding: 16,
-  },
-  inputGroup: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  input: {
-    color: '#fff',
-    marginLeft: 10,
-    flex: 1,
-  },
-  rowButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  photoButton: {
-    flexDirection: 'row',
-    backgroundColor: '#1E1E2C',
-    borderRadius: 8,
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  picker: {
-    flex: 1,
-    color: '#fff',
-  },
-  textAreaBox: {
-    flexDirection: 'row',
-    backgroundColor: '#1E1E2C',
-    borderRadius: 8,
-    padding: 10,
-    alignItems: 'flex-start',
-    marginBottom: 10,
-  },
-  buttonText: {
-    color: '#fff',
-    marginLeft: 8,
-  },
-  photoIndicator: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#34C759',
-    marginLeft: 8,
-  },
-  photoPreview: {
-    width: 100,
-    height: 100,
-    borderRadius: 8,
-    marginTop: 12,
-    alignSelf: 'center',
-  },
-  actionRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 30,
-  },
-  cancelButton: {
-    backgroundColor: '#1E1E2C',
-    paddingVertical: 14,
-    paddingHorizontal: 28,
-    borderRadius: 8,
-  },
-  saveButton: {
-    backgroundColor: '#E74C3C',
-    paddingVertical: 14,
-    paddingHorizontal: 28,
-    borderRadius: 8,
-    flex: 1,
-    marginLeft: 8,
-    alignItems: 'center',
-  },
-  cancelButtonText: {
-    color: '#F46D5D',
-    fontWeight: 'bold',
-  },
-  saveButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.5)',
-  },
-  modalContent: {
-    width: '80%',
-    backgroundColor: '#161B22',
-    borderRadius: 10,
-    padding: 20,
-  },
-  modalTitle: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 20,
-    textAlign: 'center',
-  },
-  checkboxContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 15,
-  },
-  checkboxLabel: {
-    color: '#fff',
-    marginLeft: 10,
-    fontSize: 16,
-  },
-  modalButton: {
-    backgroundColor: '#F46D5D',
-    padding: 12,
-    borderRadius: 8,
-    marginTop: 10,
-    alignItems: 'center',
-  },
-  modalButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
-  },
-  radioGroup: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
-    paddingHorizontal: 8,
-  },
-  radioOption: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginRight: 16,
-  },
-  radioCircle: {
-    height: 18,
-    width: 18,
-    borderRadius: 9,
-    borderWidth: 2,
-    borderColor: '#F46D5D',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 8,
-  },
-  radioSelected: {
-    backgroundColor: '#F46D5D',
-  },
-  radioLabel: {
-    color: '#fff',
-    fontSize: 16,
-  },
 
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: '#0D0D1A', padding: 20 },
+  title: { fontSize: 18, color: '#fff', fontWeight: 'bold', marginBottom: 16 },
+  inputBox: {
+    flexDirection: 'row', backgroundColor: '#1E1E2C', borderRadius: 8,
+    padding: 10, alignItems: 'center', marginBottom: 10,
+  },
+  input: { color: '#fff', marginLeft: 10, flex: 1 },
+  icon: { marginLeft: 4 },
+  textAreaBox: {
+    flexDirection: 'row', backgroundColor: '#1E1E2C', borderRadius: 8,
+    padding: 10, alignItems: 'flex-start', marginBottom: 10,
+  },
+  textArea: { color: '#fff', marginLeft: 10, flex: 1, height: 80, textAlignVertical: 'top' },
+  photoSection: { alignItems: 'center', marginVertical: 20 },
+  image: { width: 100, height: 100, borderRadius: 8, marginBottom: 10 },
+  photoPlaceholderText: { color: '#aaa', marginBottom: 10 },
+  photoButton: { backgroundColor: '#E74C3C', padding: 10, borderRadius: 6 },
+  photoButtonText: { color: '#fff', fontWeight: 'bold' },
+  actionRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 30 },
+  cancelButton: { backgroundColor: '#1E1E2C', paddingVertical: 14, paddingHorizontal: 28, borderRadius: 8 },
+  saveButton: { backgroundColor: '#E74C3C', paddingVertical: 14, paddingHorizontal: 28, borderRadius: 8 },
+  actionText: { color: '#fff', fontWeight: 'bold' },
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', alignItems: 'center' },
+  modalBox: { backgroundColor: '#fff', padding: 20, borderRadius: 10, width: '80%' },
+  modalTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 10, color: '#333' },
+  checkboxItem: { flexDirection: 'row', alignItems: 'center', marginBottom: 10 },
+  radioItem: { flexDirection: 'row', alignItems: 'center', marginVertical: 6 },
+  modalText: { fontSize: 16, marginLeft: 10 },
+  closeButton: { backgroundColor: '#E74C3C', padding: 10, marginTop: 10, borderRadius: 6, alignItems: 'center' },
 });
