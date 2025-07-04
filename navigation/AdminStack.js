@@ -32,6 +32,7 @@ import SuperAdminDashboardScreen from '../screens/SuperAdmin/SuperAdminDashboard
 import DashboardScreen from '../screens/common/DashboardScreen';
 import VisitorFormScreen from '../screens/common/VisitorFormScreen';
 import VisitorDetailsScreen from '../screens/common/VisitorDetailsScreen';
+import ProfileScreen from '../screens/Admin/ProfileScreen';
 
 
 
@@ -50,6 +51,8 @@ export default function AppNavigator() {
       <Stack.Screen name="DashboardScreen" component={DashboardScreen} />
       <Stack.Screen name="VisitorForm" component={VisitorFormScreen} />
       <Stack.Screen name="VisitorDetails" component={VisitorDetailsScreen} />
+      <Stack.Screen name="ProfileScreen" component={ProfileScreen}/>
+      
     </Stack.Navigator>
   );
 }
