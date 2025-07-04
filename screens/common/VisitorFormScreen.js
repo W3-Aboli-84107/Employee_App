@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import {
   View,
@@ -8,12 +9,11 @@ import {
   ScrollView,
   Alert,
   Image,
-  Modal,
+  Modal
 } from 'react-native';
 import { Ionicons, MaterialCommunityIcons, FontAwesome } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
-import * as ImagePicker from 'expo-image-picker';
-import Checkbox from 'expo-checkbox';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function VisitorFormScreen({ navigation }) {
   const [formData, setFormData] = useState({
@@ -27,16 +27,15 @@ export default function VisitorFormScreen({ navigation }) {
     idProof: '',
     reference: '',
   });
-
   const [photo, setPhoto] = useState(null);
   const [remark, setRemark] = useState('');
-  const [modalVisible, setModalVisible] = useState(false);
   const [purposeOptions, setPurposeOptions] = useState([
     { id: 1, label: 'Meeting', value: false },
     { id: 2, label: 'Delivery', value: false },
     { id: 3, label: 'Interview', value: false },
     { id: 4, label: 'Personal', value: false },
   ]);
+  const [modalVisible, setModalVisible] = useState(false);
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -48,49 +47,53 @@ export default function VisitorFormScreen({ navigation }) {
       Alert.alert('Permission required', 'Camera access is needed to take photos');
       return;
     }
-
     const result = await ImagePicker.launchCameraAsync({
       allowsEditing: true,
       aspect: [4, 3],
       quality: 0.8,
     });
-
     if (!result.canceled) {
       setPhoto(result.assets[0].uri);
     }
   };
 
   const togglePurposeOption = (id) => {
-    setPurposeOptions(prev =>
-      prev.map(opt => (opt.id === id ? { ...opt, value: !opt.value } : opt))
+    setPurposeOptions(prevOptions =>
+      prevOptions.map(option =>
+        option.id === id ? { ...option, value: !option.value } : option
+      )
     );
   };
 
   const getSelectedPurposes = () => {
-    return purposeOptions.filter(opt => opt.value).map(opt => opt.label).join(', ');
+    return purposeOptions
+      .filter(option => option.value)
+      .map(option => option.label)
+      .join(', ');
   };
 
   const handleSubmit = () => {
     if (!formData.name || !formData.phone || !formData.whomToMeet) {
-      return Alert.alert('Missing Information', 'Please fill in all required fields');
+      Alert.alert('Missing Information', 'Please fill in all required fields');
+      return;
     }
-
     if (!/^[0-9]{10,15}$/.test(formData.phone)) {
-      return Alert.alert('Invalid Phone', 'Enter a valid 10-15 digit phone number');
+      Alert.alert('Invalid Phone', 'Please enter a valid 10-15 digit phone number');
+      return;
     }
-
     if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      return Alert.alert('Invalid Email', 'Enter a valid email address');
+      Alert.alert('Invalid Email', 'Please enter a valid email address');
+      return;
     }
 
     const visitorData = {
       ...formData,
-      purposes: purposeOptions.filter(opt => opt.value).map(opt => opt.label),
+      purposes: purposeOptions.filter(option => option.value).map(option => option.label),
       photo,
       remark,
       checkInTime: new Date().toISOString(),
     };
-
+    
     console.log('Visitor Data:', visitorData);
     Alert.alert('Success', 'Visitor information saved successfully');
     navigation.goBack();
@@ -98,7 +101,6 @@ export default function VisitorFormScreen({ navigation }) {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-      {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={24} color="#fff" />
@@ -106,21 +108,20 @@ export default function VisitorFormScreen({ navigation }) {
         <Text style={styles.title}>Visitor's Detail</Text>
       </View>
 
-      {/* Form Section */}
       <View style={styles.section}>
-        {/* Text Inputs */}
+        {/* Basic Inputs */}
         {[
           { icon: 'person-outline', field: 'name', placeholder: 'Visitor Name*' },
           { icon: 'call-outline', field: 'phone', placeholder: 'Phone Number*', keyboardType: 'phone-pad' },
           { icon: 'mail-outline', field: 'email', placeholder: 'Email', keyboardType: 'email-address' },
-          { icon: 'location-outline', field: 'address', placeholder: 'Address' },
+          { icon: 'location-outline', field: 'address', placeholder: 'Address' }
         ].map((item, index) => (
           <View key={index} style={styles.inputGroup}>
             <Ionicons name={item.icon} size={20} color="#F46D5D" />
             <TextInput
               style={styles.input}
               placeholder={item.placeholder}
-              placeholderTextColor="#fff"
+              placeholderTextColor="#aaa"
               value={formData[item.field]}
               keyboardType={item.keyboardType || 'default'}
               onChangeText={text => handleInputChange(item.field, text)}
@@ -128,35 +129,34 @@ export default function VisitorFormScreen({ navigation }) {
           </View>
         ))}
 
-        {/* Gender Radio Buttons */}
-        <View style={[styles.inputGroup, { flexDirection: 'column', alignItems: 'flex-start' }]}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
-            <Ionicons name="male-female-outline" size={20} color="#F46D5D" />
-            <Text style={{ color: '#fff', marginLeft: 12 }}>Gender</Text>
-          </View>
-          <View style={styles.radioGroup}>
-            {['male', 'female', 'other'].map((value) => (
-              <TouchableOpacity
-                key={value}
-                style={styles.radioOption}
-                onPress={() => handleInputChange('gender', value)}
-              >
-                <View style={[styles.radioCircle, formData.gender === value && styles.radioSelected]} />
-                <Text style={styles.radioLabel}>{value.charAt(0).toUpperCase() + value.slice(1)}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
+        {/* Gender Picker */}
+        <View style={styles.inputGroup}>
+          <Ionicons name="male-female-outline" size={20} color="#F46D5D" />
+          <Picker
+            selectedValue={formData.gender}
+            onValueChange={value => handleInputChange('gender', value)}
+            style={styles.picker}
+            dropdownIconColor="#F46D5D"
+          >
+            <Picker.Item label="Select Gender" value="" />
+            <Picker.Item label="Male" value="male" />
+            <Picker.Item label="Female" value="female" />
+            <Picker.Item label="Other" value="other" />
+          </Picker>
         </View>
 
         {/* Purpose Multi-select */}
-        <TouchableOpacity style={styles.inputGroup} onPress={() => setModalVisible(true)}>
+        <TouchableOpacity 
+          style={styles.inputGroup} 
+          onPress={() => setModalVisible(true)}
+        >
           <Ionicons name="calendar-outline" size={20} color="#F46D5D" />
           <Text style={[styles.input, { color: getSelectedPurposes() ? '#fff' : '#aaa' }]}>
             {getSelectedPurposes() || 'Purpose of Visit'}
           </Text>
         </TouchableOpacity>
 
-        {/* Modal for Purpose Selection */}
+        {/* Purpose Selection Modal */}
         <Modal
           visible={modalVisible}
           animationType="slide"
@@ -166,6 +166,7 @@ export default function VisitorFormScreen({ navigation }) {
           <View style={styles.modalContainer}>
             <View style={styles.modalContent}>
               <Text style={styles.modalTitle}>Select Purpose(s)</Text>
+              
               {purposeOptions.map((option) => (
                 <View key={option.id} style={styles.checkboxContainer}>
                   <Checkbox
@@ -176,7 +177,11 @@ export default function VisitorFormScreen({ navigation }) {
                   <Text style={styles.checkboxLabel}>{option.label}</Text>
                 </View>
               ))}
-              <TouchableOpacity style={styles.modalButton} onPress={() => setModalVisible(false)}>
+              
+              <TouchableOpacity 
+                onPress={() => setModalVisible(false)} 
+                style={styles.modalButton}
+              >
                 <Text style={styles.modalButtonText}>Done</Text>
               </TouchableOpacity>
             </View>
@@ -189,38 +194,36 @@ export default function VisitorFormScreen({ navigation }) {
           <TextInput
             style={[styles.input, { height: 80, textAlignVertical: 'top' }]}
             placeholder="Description"
-            placeholderTextColor="#fff"
+            placeholderTextColor="#aaa"
             multiline
             value={formData.description}
             onChangeText={text => handleInputChange('description', text)}
           />
         </View>
 
-        {/* Whom to Meet */}
+        {/* Meeting Info */}
         <View style={styles.inputGroup}>
           <FontAwesome name="user-o" size={20} color="#F46D5D" />
           <TextInput
             style={styles.input}
             placeholder="Whom to Meet*"
-            placeholderTextColor="#fff"
+            placeholderTextColor="#aaa"
             value={formData.whomToMeet}
             onChangeText={text => handleInputChange('whomToMeet', text)}
           />
         </View>
 
-        {/* ID Proof */}
         <View style={styles.inputGroup}>
           <MaterialCommunityIcons name="card-account-details-outline" size={20} color="#F46D5D" />
           <TextInput
             style={styles.input}
             placeholder="ID Proof (optional)"
-            placeholderTextColor="#fff"
+            placeholderTextColor="#aaa"
             value={formData.idProof}
             onChangeText={text => handleInputChange('idProof', text)}
           />
         </View>
 
-        {/* Reference Picker */}
         <View style={styles.inputGroup}>
           <MaterialCommunityIcons name="account-search-outline" size={20} color="#F46D5D" />
           <Picker
@@ -229,15 +232,15 @@ export default function VisitorFormScreen({ navigation }) {
             style={styles.picker}
             dropdownIconColor="#F46D5D"
           >
-            <Picker.Item label="Reference By (optional)" value="" color="#aaa" />
-            <Picker.Item label="Manager" value="manager" color="#fff" />
-            <Picker.Item label="HR" value="hr" color="#fff" />
-            <Picker.Item label="Employee" value="employee" color="#fff" />
+            <Picker.Item label="Reference By (optional)" value="" />
+            <Picker.Item label="Manager" value="manager" />
+            <Picker.Item label="HR" value="hr" />
+            <Picker.Item label="Employee" value="employee" />
           </Picker>
         </View>
       </View>
 
-      {/* Photo and Remark Section */}
+      {/* Photo & Remark */}
       <View style={styles.section}>
         <View style={styles.rowButtons}>
           <TouchableOpacity style={styles.photoButton} onPress={handleTakePhoto}>
@@ -246,24 +249,30 @@ export default function VisitorFormScreen({ navigation }) {
             {photo && <View style={styles.photoIndicator} />}
           </TouchableOpacity>
 
-          <TouchableOpacity
-            style={styles.remarkButton}
+          <TouchableOpacity 
+            style={styles.remarkButton} 
             onPress={() => navigation.navigate('Remark', { remark, setRemark })}
           >
             <Ionicons name="create-outline" size={20} color="#fff" />
             <Text style={styles.buttonText}>Remark (optional)</Text>
           </TouchableOpacity>
         </View>
-
         {photo && <Image source={{ uri: photo }} style={styles.photoPreview} />}
       </View>
 
       {/* Action Buttons */}
       <View style={styles.actionButtons}>
-        <TouchableOpacity style={styles.cancelButton} onPress={() => navigation.goBack()}>
+        <TouchableOpacity 
+          style={styles.cancelButton} 
+          onPress={() => navigation.goBack()}
+        >
           <Text style={styles.cancelButtonText}>Cancel</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.saveButton} onPress={handleSubmit}>
+
+        <TouchableOpacity 
+          style={styles.saveButton} 
+          onPress={handleSubmit}
+        >
           <Text style={styles.saveButtonText}>Save Visitor</Text>
         </TouchableOpacity>
       </View>
@@ -271,50 +280,68 @@ export default function VisitorFormScreen({ navigation }) {
   );
 }
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0D1117' },
-  contentContainer: { padding: 16, paddingBottom: 40 },
-  header: { flexDirection: 'row', alignItems: 'center', marginBottom: 24 },
-  title: { fontSize: 20, fontWeight: 'bold', color: '#fff', marginLeft: 16 },
+  container: {
+    flex: 1,
+    backgroundColor: '#0D1117',
+  },
+  contentContainer: {
+    padding: 16,
+    paddingBottom: 40,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#fff',
+    marginLeft: 16,
+  },
   section: {
     marginBottom: 24,
     backgroundColor: '#161B22',
     borderRadius: 10,
     padding: 16,
   },
-  inputGroup: { flexDirection: 'row', alignItems: 'center', marginBottom: 16 },
+  inputGroup: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
   input: {
-    flex: 1,
     color: '#fff',
-    marginLeft: 12,
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#30363D',
+    marginLeft: 10,
+    flex: 1,
+  },
+  rowButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  photoButton: {
+    flexDirection: 'row',
+    backgroundColor: '#1E1E2C',
+    borderRadius: 8,
+    alignItems: 'center',
+    marginBottom: 10,
   },
   picker: {
     flex: 1,
     color: '#fff',
-    marginLeft: 12,
   },
-  rowButtons: { flexDirection: 'row', justifyContent: 'space-between' },
-  photoButton: {
+  textAreaBox: {
     flexDirection: 'row',
-    backgroundColor: '#F46D5D',
-    padding: 12,
+    backgroundColor: '#1E1E2C',
     borderRadius: 8,
-    alignItems: 'center',
-    flex: 1,
-    marginRight: 8,
+    padding: 10,
+    alignItems: 'flex-start',
+    marginBottom: 10,
   },
-  remarkButton: {
-    flexDirection: 'row',
-    backgroundColor: '#30363D',
-    padding: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-    flex: 1,
+  buttonText: {
+    color: '#fff',
     marginLeft: 8,
   },
-  buttonText: { color: '#fff', marginLeft: 8 },
   photoIndicator: {
     width: 8,
     height: 8,
@@ -329,31 +356,34 @@ const styles = StyleSheet.create({
     marginTop: 12,
     alignSelf: 'center',
   },
-  actionButtons: {
+  actionRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 16,
+    marginTop: 30,
   },
   cancelButton: {
-    backgroundColor: 'transparent',
-    borderWidth: 1,
-    borderColor: '#F46D5D',
-    padding: 16,
+    backgroundColor: '#1E1E2C',
+    paddingVertical: 14,
+    paddingHorizontal: 28,
     borderRadius: 8,
-    flex: 1,
-    marginRight: 8,
-    alignItems: 'center',
   },
   saveButton: {
-    backgroundColor: '#F46D5D',
-    padding: 16,
+    backgroundColor: '#E74C3C',
+    paddingVertical: 14,
+    paddingHorizontal: 28,
     borderRadius: 8,
     flex: 1,
     marginLeft: 8,
     alignItems: 'center',
   },
-  cancelButtonText: { color: '#F46D5D', fontWeight: 'bold' },
-  saveButtonText: { color: '#fff', fontWeight: 'bold' },
+  cancelButtonText: {
+    color: '#F46D5D',
+    fontWeight: 'bold',
+  },
+  saveButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+  },
   modalContainer: {
     flex: 1,
     justifyContent: 'center',

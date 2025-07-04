@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 // import React from 'react';
 // import { createNativeStackNavigator } from '@react-navigation/native-stack';
 // import welcomeScreens from '../screens/auth/welcomeScreens';
@@ -28,6 +29,8 @@
 //   );
 // }
 
+=======
+>>>>>>> ec06e22ee4c4732af95e3673b5f7c2a32a10f899
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
@@ -40,12 +43,16 @@ import AdminDashboardScreen from '../screens/Admin/AdminDashboard';
 import SuperAdminDashboardScreen from '../screens/SuperAdmin/SuperAdminDashboard';
 import DashboardScreen from '../screens/common/DashboardScreen';
 import VisitorFormScreen from '../screens/common/VisitorFormScreen';
+import VisitorDetailsScreen from '../screens/common/VisitorDetailsScreen';
+
 import HistoryScreen from '../screens/common/HistoryScreen';
 import ForgotPasswordScreen from '../screens/common/ForgotPasswordScreen';
 import OTPScreen from '../screens/common/OTPScreen';
 import OtpSuccessfulScreen from '../screens/common/OtpSuccessfulScreen';
 import NewPasswordScreen from '../screens/common/NewPasswordScreen';
 import OtpUnsuccessfulScreen from '../screens/common/OtpUnsuccessfulScreen';
+
+import VisitorDetailsScreen from '../screens/common/VisitorDetailsScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -61,13 +68,175 @@ export default function AppNavigator() {
       <Stack.Screen name="SuperAdminDashboard" component={SuperAdminDashboardScreen} />
       <Stack.Screen name="DashboardScreen" component={DashboardScreen} />
       <Stack.Screen name="VisitorForm" component={VisitorFormScreen} />
+<<<<<<< HEAD
+      <Stack.Screen name="VisitorDetails" component={VisitorDetailsScreen} />
+=======
+
       <Stack.Screen name='History' component={HistoryScreen} />
+<<<<<<< HEAD
       <Stack.Screen name='ForgotPassword' component={ForgotPasswordScreen} />
       <Stack.Screen name='OTPScreen' component={OTPScreen} />
       <Stack.Screen name='OtpSuccess' component={OtpSuccessfulScreen} />
       <Stack.Screen name='OtpUnsuccess' component={OtpUnsuccessfulScreen} />
       <Stack.Screen name='NewPassword' component={NewPasswordScreen} />
 
+=======
+
+      <Stack.Screen name="VisitorDetails" component={VisitorDetailsScreen} />
+
+>>>>>>> 4e9bf1653d9abda0ea05c73f8bcd6ed38f8f127f
+>>>>>>> ec06e22ee4c4732af95e3673b5f7c2a32a10f899
     </Stack.Navigator>
   );
 }
+
+
+// // AppNavigator.js
+// import React from 'react';
+// import { createNativeStackNavigator } from '@react-navigation/native-stack';
+
+
+// // Auth Screens
+// import WelcomeScreen from '../screens/auth/welcomeScreens';
+// import LoginScreen from '../screens/auth/loginScreens';
+// import SignupScreen from '../screens/auth/signupscreen';
+
+// // Stacks
+// import AdminStack from './AdminStack';
+// import SuperAdminStack from './SuperAdminStack';
+
+// // Admin and SuperAdmin Dashboard Screens
+// import AdminDashboardScreen from '../screens/Admin/AdminDashboard';
+// import SuperAdminDashboardScreen from '../screens/SuperAdmin/SuperAdminDashboard';
+
+// // Common Screens
+// import DashboardScreen from '../screens/common/DashboardScreen';
+// import VisitorFormScreen from '../screens/common/VisitorFormScreen';
+// import VisitorDetailsScreen from '../screens/common/VisitorDetailsScreen';
+
+// const Stack = createNativeStackNavigator();
+
+// export default function AppNavigator() {
+//   return (
+//     <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName="Welcome">
+//       {/* Authentication Flow */}
+//       <Stack.Screen name="Welcome" component={WelcomeScreen} />
+//       <Stack.Screen name="Login" component={LoginScreen} />
+//       <Stack.Screen name="SignUp" component={SignupScreen} />
+
+//       {/* Role-based Navigation Stacks */}
+//       <Stack.Screen name="AdminStack" component={AdminStack} />
+//       <Stack.Screen name="SuperAdminStack" component={SuperAdminStack} />
+
+//       {/* Dashboard Screens (can be accessed directly or via stacks) */}
+//       <Stack.Screen name="AdminDashboard" component={AdminDashboardScreen} />
+//       <Stack.Screen name="SuperAdminDashboard" component={SuperAdminDashboardScreen} />
+
+//       {/* Shared Screens */}
+//       <Stack.Screen name="DashboardScreen" component={DashboardScreen} />
+//       <Stack.Screen name="VisitorForm" component={VisitorFormScreen} />
+//       <Stack.Screen name="VisitorDetails" component={VisitorDetailsScreen} />
+//     </Stack.Navigator>
+//   );
+// }
+
+
+// // navigation/AppNavigator.js
+// import React from 'react';
+// import { createNativeStackNavigator } from '@react-navigation/native-stack';
+
+// // Auth Screens
+// import WelcomeScreen from '../screens/auth/welcomeScreens';
+// import LoginScreen from '../screens/auth/loginScreens';
+// import SignupScreen from '../screens/auth/signupscreen';
+
+// // Admin & SuperAdmin Stacks
+// import AdminStack from './AdminStack';
+// import SuperAdminStack from './SuperAdminStack';
+
+// // Admin & SuperAdmin Dashboards
+// import AdminDashboardScreen from '../screens/Admin/AdminDashboard';
+// import SuperAdminDashboardScreen from '../screens/SuperAdmin/SuperAdminDashboard';
+
+// // Shared/Common Screens
+// import DashboardScreen from '../screens/common/DashboardScreen';
+// import VisitorFormScreen from '../screens/common/VisitorFormScreen';
+// import VisitorDetailsScreen from '../screens/common/VisitorDetailsScreen';
+
+// const Stack = createNativeStackNavigator();
+
+// export default function AppNavigator() {
+//   return (
+//     <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName="Welcome">
+      
+//       {/* Auth Screens */}
+//       <Stack.Screen name="Welcome" component={WelcomeScreen} />
+//       <Stack.Screen name="Login" component={LoginScreen} />
+//       <Stack.Screen name="SignUp" component={SignupScreen} />
+
+//       {/* Role-Based Navigation */}
+//       <Stack.Screen name="AdminStack" component={AdminStack} />
+//       <Stack.Screen name="SuperAdminStack" component={SuperAdminStack} />
+
+//       {/* Optional: Direct Dashboard Access */}
+//       <Stack.Screen name="AdminDashboard" component={AdminDashboardScreen} />
+//       <Stack.Screen name="SuperAdminDashboard" component={SuperAdminDashboardScreen} />
+
+//       {/* Common Screens */}
+//       <Stack.Screen name="DashboardScreen" component={DashboardScreen} />
+//       <Stack.Screen name="VisitorForm" component={VisitorFormScreen} />
+//       <Stack.Screen name="VisitorDetails" component={VisitorDetailsScreen} />
+//     </Stack.Navigator>
+//   );
+// }
+
+
+// // navigation/AppNavigator.js
+// import React from 'react';
+// import { createNativeStackNavigator } from '@react-navigation/native-stack';
+
+// // Auth Screens
+// import WelcomeScreen from '../screens/auth/WelcomeScreen';
+// import LoginScreen from '../screens/auth/LoginScreen';
+// import SignupScreen from '../screens/auth/SignupScreen';
+
+// // Admin & SuperAdmin Stack Navigators
+// import AdminStack from './AdminStack';
+// import SuperAdminStack from './SuperAdminStack';
+
+// // Dashboard Screens (Optional direct access)
+// import AdminDashboardScreen from '../screens/Admin/AdminDashboard';
+// import SuperAdminDashboardScreen from '../screens/SuperAdmin/SuperAdminDashboard';
+
+// // Shared/Common Screens
+// import DashboardScreen from '../screens/common/DashboardScreen';
+// import VisitorFormScreen from '../screens/common/VisitorFormScreen';
+// import VisitorDetailsScreen from '../screens/common/VisitorDetailsScreen';
+
+// // Create the Stack
+// const Stack = createNativeStackNavigator();
+
+// export default function AppNavigator() {
+//   return (
+//     <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName="Welcome">
+      
+//       {/* Authentication Flow */}
+//       <Stack.Screen name="Welcome" component={WelcomeScreen} />
+//       <Stack.Screen name="Login" component={LoginScreen} />
+//       <Stack.Screen name="SignUp" component={SignupScreen} />
+
+//       {/* Role-Based Navigation */}
+//       <Stack.Screen name="AdminStack" component={AdminStack} />
+//       <Stack.Screen name="SuperAdminStack" component={SuperAdminStack} />
+
+//       {/* Optional direct dashboard access */}
+//       <Stack.Screen name="AdminDashboard" component={AdminDashboardScreen} />
+//       <Stack.Screen name="SuperAdminDashboard" component={SuperAdminDashboardScreen} />
+
+//       {/* Shared Screens */}
+//       <Stack.Screen name="DashboardScreen" component={DashboardScreen} />
+//       <Stack.Screen name="VisitorForm" component={VisitorFormScreen} />
+//       <Stack.Screen name="VisitorDetails" component={VisitorDetailsScreen} />
+//     </Stack.Navigator>
+//   );
+// }

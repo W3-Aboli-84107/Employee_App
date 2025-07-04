@@ -1,90 +1,59 @@
-import React, { useState } from 'react';
+
+import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import colors from '../constants/colors';
 
-const VisitorCard = ({ name, onCall }) => {
-  const [outTime, setOutTime] = useState(null);
-  const [isTimedOut, setIsTimedOut] = useState(false);
-
-  const handleTimeout = () => {
-    console.log('Marking timeout...');
-    setTimeout(() => {
-      const currentTime = new Date();
-      const formattedTime = currentTime.toLocaleTimeString([], {
-        hour: '2-digit',
-        minute: '2-digit',
-      });
-
-      setOutTime(formattedTime);
-      setIsTimedOut(true);
-
-      console.log(`Visitor has been timed out at ${formattedTime}`);
-    }, 2000); // 2 seconds delay
-  };
-
+const VisitorCard = ({ name, date, onCall, onPress }) => {
   return (
-    <View style={styles.card}>
-      <View>
-        <Text style={styles.name}>{name}</Text>
-        {isTimedOut && (
-          <Text style={styles.date}>Out Time: {outTime}</Text>
-        )}
-      </View>
-      <View style={styles.icons}>
-        <TouchableOpacity
-          onPress={handleTimeout}
-          disabled={isTimedOut}
-        >
-          <Ionicons
-            name="time-outline"
-            size={20}
-            color={isTimedOut ? '#aaa' : '#fff'}
-            style={styles.icon}
-          />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={onCall}>
-          <Ionicons
-            name="call-outline"
-            size={20}
-            color="#fff"
-            style={[styles.icon, styles.callIcon]}
-          />
+    <TouchableOpacity style={styles.card} onPress={onPress}>
+      <View style={styles.cardContent}>
+        <View style={styles.textContainer}>
+          <Text style={styles.name}>{name}</Text>
+          <Text style={styles.date}>{date}</Text>
+        </View>
+        <TouchableOpacity style={styles.callButton} onPress={onCall}>
+          <Ionicons name="call-outline" size={20} color="#fff" />
         </TouchableOpacity>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: colors.card,
+    backgroundColor: colors.cardBackground,
     borderRadius: 10,
-    padding: 12,
+    padding: 16,
+    marginBottom: 12,
+    elevation: 2,
+  },
+  cardContent: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 10,
+  },
+  textContainer: {
+    flex: 1,
   },
   name: {
     color: colors.text,
     fontSize: 16,
     fontWeight: '500',
+    marginBottom: 4,
   },
   date: {
-    color: "gray",
-    fontSize: 12,
-    marginTop: 4,
+    color: colors.textSecondary,
+    fontSize: 14,
   },
-  icons: {
-    flexDirection: 'row',
-  },
-  icon: {
+  callButton: {
+    backgroundColor: colors.primary,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    justifyContent: 'center',
+    alignItems: 'center',
     marginLeft: 10,
-  },
-  callIcon: {
-    borderRadius: 20,
-    padding: 4,
   },
 });
 
