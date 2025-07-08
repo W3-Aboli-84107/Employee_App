@@ -1,4 +1,3 @@
-// AdminProfileScreen.js
 import React, { useEffect, useState } from 'react';
 import {
   View,
@@ -6,32 +5,60 @@ import {
   StyleSheet,
   TouchableOpacity,
   Image,
+  Dimensions,
+  ScrollView,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as ImagePicker from 'expo-image-picker';
+
+const { width, height } = Dimensions.get('window');
 
 const ProfileScreen = ({ navigation }) => {
   const [user, setUser] = useState(null);
+  const [userImage, setUserImage] = useState(null);
 
   useEffect(() => {
     const loadUser = async () => {
       const data = await AsyncStorage.getItem('user');
-      if (data) {
-        setUser(JSON.parse(data));
-      }
+      const image = await AsyncStorage.getItem('userImage');
+      if (data) setUser(JSON.parse(data));
+      if (image) setUserImage(image);
     };
     loadUser();
   }, []);
 
   const handleLogout = async () => {
     await AsyncStorage.removeItem('user');
+    await AsyncStorage.removeItem('userImage');
     navigation.replace('Login');
+  };
+
+  const pickImage = async () => {
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (permissionResult.granted === false) {
+      alert("Permission to access gallery is required!");
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.7,
+    });
+
+    if (!result.canceled) {
+      const uri = result.assets[0].uri;
+      setUserImage(uri);
+      await AsyncStorage.setItem('userImage', uri);
+    }
   };
 
   if (!user) return null;
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Icon name="arrow-back" size={24} color="#fff" />
@@ -43,26 +70,36 @@ const ProfileScreen = ({ navigation }) => {
       </View>
 
       <View style={styles.avatarContainer}>
-        <Image
-          source={require('../../assets/image.png')} // Replace with dynamic photo if needed
-          style={styles.avatar}
-        />
+        <View style={styles.avatarWrapper}>
+          <TouchableOpacity onPress={pickImage}>
+            <Image
+              source={userImage ? { uri: userImage } : require('../../assets/image.png')}
+              style={styles.avatar}
+            />
+            <View style={styles.cameraIconContainer}>
+              <Icon name="camera" size={20} color="#fff" />
+            </View>
+          </TouchableOpacity>
+        </View>
       </View>
 
+    
+
       <View style={styles.infoSection}>
-        <InfoRow icon="person" text={`${user.firstName} ${user.lastName}`} />
-        <InfoRow icon="call" text={user.phone} />
-        <InfoRow icon="mail" text={user.email} />
-        <InfoRow icon="location" text={user.address} />
-        <TouchableOpacity>
-          <Text style={styles.resetText}>Password reset</Text>
-        </TouchableOpacity>
-      </View>
+  <InfoRow icon="person" text={`${user.firstName} ${user.lastName}`} />
+  <InfoRow icon="call" text={user.phone} />
+  <InfoRow icon="mail" text={user.email} />
+  <InfoRow icon="location" text={user.address} />
+  <TouchableOpacity>
+    <Text style={styles.resetText}>Password reset</Text>
+  </TouchableOpacity>
+</View>
+
 
       <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
         <Text style={styles.logoutText}>Log out</Text>
       </TouchableOpacity>
-    </View>
+    </ScrollView>
   );
 };
 
@@ -77,7 +114,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#0D0D1A',
-    padding: 20,
+    paddingHorizontal: width * 0.05,
+    paddingTop: height * 0.09,
   },
   header: {
     flexDirection: 'row',
@@ -86,48 +124,64 @@ const styles = StyleSheet.create({
   },
   title: {
     color: '#fff',
-    fontSize: 20,
+    fontSize: width * 0.05,
     fontWeight: 'bold',
   },
   avatarContainer: {
     alignItems: 'center',
-    marginVertical: 20,
+    marginVertical: height * 0.03,
+  },
+  avatarWrapper: {
+    position: 'relative',
   },
   avatar: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+    width: width * 0.22,
+    height: width * 0.22,
+    borderRadius: width * 0.11,
     borderWidth: 2,
     borderColor: '#E74C3C',
   },
+  cameraIconContainer: {
+    position: 'absolute',
+    bottom: 4,
+    right: 4,
+    backgroundColor: '#E74C3C',
+    borderRadius: 20,
+    padding: 4,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   infoSection: {
-    marginTop: 20,
+    marginTop: height * 0.02,
   },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: 10,
+    marginVertical: height * 0.012,
   },
   infoText: {
     color: '#fff',
     marginLeft: 12,
-    fontSize: 16,
+    fontSize: width * 0.045,
   },
   resetText: {
     color: '#E74C3C',
-    marginTop: 10,
+    marginTop: height * 0.01,
     marginLeft: 32,
+    fontSize: width * 0.04,   
   },
   logoutButton: {
-    marginTop: 40,
+    marginTop: height * 0.05,
     backgroundColor: '#E74C3C',
-    padding: 14,
-    borderRadius: 8,
+    paddingVertical: height * 0.02,
+    borderRadius: 10,
     alignItems: 'center',
+    marginBottom: height * 0.03,
   },
   logoutText: {
     color: '#fff',
     fontWeight: 'bold',
+    fontSize: width * 0.045,
   },
 });
 

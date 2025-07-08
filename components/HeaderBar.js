@@ -1,53 +1,67 @@
-import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, Text, TextInput, TouchableOpacity } from 'react-native';
+import React, { useState, useCallback } from 'react';
+import { View, StyleSheet, Text, TextInput, TouchableOpacity, Image } from 'react-native';
 import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native'; // 🔥 Added useFocusEffect
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function HeaderBar({ onSearch }) {
   const navigation = useNavigation();
   const [firstName, setFirstName] = useState('');
   const [greeting, setGreeting] = useState('Hello');
+  const [profileImage, setProfileImage] = useState(null);
 
-  useEffect(() => {
-    const getUserData = async () => {
-      try {
-        const userData = await AsyncStorage.getItem('user');
-        if (userData) {
-          const parsedData = JSON.parse(userData);
-          setFirstName(parsedData.firstName);
+  useFocusEffect( // 🔥 Runs every time screen comes into focus
+    useCallback(() => {
+      const getUserData = async () => {
+        try {
+          const userData = await AsyncStorage.getItem('user');
+          const userImage = await AsyncStorage.getItem('userImage');
+
+          if (userData) {
+            const parsedData = JSON.parse(userData);
+            setFirstName(parsedData.firstName);
+          }
+
+          if (userImage) {
+            setProfileImage(userImage);
+          } else {
+            setProfileImage(null); // fallback
+          }
+        } catch (error) {
+          console.error('Failed to load user data:', error);
         }
-      } catch (error) {
-        console.error('Failed to load user data:', error);
-      }
-    };
+      };
 
-    const updateGreeting = () => {
-      const hour = new Date().getHours();
-      if (hour < 12) {
-        setGreeting('Good Morning');
-      } else if (hour < 17) {
-        setGreeting('Good Afternoon');
-      } else {
-        setGreeting('Good Evening');
-      }
-    };
+      const updateGreeting = () => {
+        const hour = new Date().getHours();
+        if (hour < 12) setGreeting('Good Morning');
+        else if (hour < 17) setGreeting('Good Afternoon');
+        else setGreeting('Good Evening');
+      };
 
-    getUserData();
-    updateGreeting();
-  }, []);
+      getUserData();
+      updateGreeting();
+    }, [])
+  );
 
-  const openHistory = () => {
-    navigation.navigate('History');
-  };
+  const openHistory = () => navigation.navigate('History');
 
   return (
     <View style={styles.container}>
       <View style={styles.topRow}>
-        <View style={styles.greetingSection}>
-          <Text style={styles.greetingText}>{greeting}</Text>
-          <Text style={styles.userName}>{firstName || 'User'}</Text>
+        <View style={styles.profileAndGreeting}>
+          <TouchableOpacity onPress={() => navigation.navigate('AdminProfile')}>
+            <Image
+              source={profileImage ? { uri: profileImage } : require('../assets/image.png')}
+              style={styles.profileImage}
+            />
+          </TouchableOpacity>
+          <View style={styles.greetingSection}>
+            <Text style={styles.greetingText}>{greeting}</Text>
+            <Text style={styles.userName}>{firstName || 'User'}</Text>
+          </View>
         </View>
+
         <TouchableOpacity onPress={openHistory}>
           <FontAwesome5 name="history" size={24} color="#fff" />
         </TouchableOpacity>
@@ -59,9 +73,7 @@ export default function HeaderBar({ onSearch }) {
           placeholder="Search"
           placeholderTextColor="#ccc"
           style={styles.searchInput}
-          onChangeText={(text) => {
-            if (onSearch) onSearch(text);
-          }}
+          onChangeText={(text) => onSearch && onSearch(text)}
         />
       </View>
     </View>
@@ -116,7 +128,16 @@ const styles = StyleSheet.create({
     marginLeft: 8,
     fontSize: 16,
     flex: 1,
-  },   
+  },
+  profileAndGreeting: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  profileImage: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    marginRight: 10,
+    backgroundColor: '#fff',
+  },
 });
-
-

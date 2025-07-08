@@ -90,27 +90,6 @@ const SignUpScreen = ({ navigation }) => {
       return;
     }
 
-    // const userData = {
-    //   firstName,
-    //   lastName,
-    //   phone,
-    //   email,
-    //   address,
-    //   password,
-    //   role,
-    // };
-
-    // try {
-    //   // await AsyncStorage.setItem('user', JSON.stringify(userData)); 
-    //   await AsyncStorage.setItem('users', JSON.stringify([...users, newUser]));
-    //   Alert.alert('Success', 'Registration Successful!', [
-    //     { text: 'OK', onPress: () => navigation.replace('Login') },
-    //   ]);
-    // } 
-    // catch (error) {
-    //   console.error('Error saving user data', error);
-    //   Alert.alert('Error', 'Failed to save user data. Please try again.');
-    // }
     try {
       const usersData = await AsyncStorage.getItem('users');
       const users = usersData ? JSON.parse(usersData) : [];

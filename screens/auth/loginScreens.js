@@ -1,4 +1,3 @@
-// LoginScreen.js
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -71,6 +70,9 @@ const LoginScreen = () => {
         return;
       }
 
+      // ✅ Save logged-in user data for use in header
+      await AsyncStorage.setItem('user', JSON.stringify(user));
+
       if (rememberMe) {
         await AsyncStorage.multiSet([
           ['rememberMe', 'true'],
@@ -129,15 +131,8 @@ const LoginScreen = () => {
             value={password}
             onChangeText={setPassword}
           />
-          <TouchableOpacity
-            onPress={() => setSecureText(!secureText)}
-            style={styles.eyeIcon}
-          >
-            <Ionicons
-              name={secureText ? 'eye-off-outline' : 'eye-outline'}
-              size={20}
-              color="#aaa"
-            />
+          <TouchableOpacity onPress={() => setSecureText(!secureText)} style={styles.eyeIcon}>
+            <Ionicons name={secureText ? 'eye-off-outline' : 'eye-outline'} size={20} color="#aaa" />
           </TouchableOpacity>
         </View>
 
@@ -176,12 +171,8 @@ const LoginScreen = () => {
   );
 };
 
-
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#0D1117',
-  },
+  container: { flex: 1, backgroundColor: '#0D1117' },
   logoContainer: {
     alignItems: 'center',
     paddingTop: 50,
