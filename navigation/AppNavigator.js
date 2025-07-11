@@ -21,6 +21,9 @@ import OtpUnsuccessfulScreen from '../screens/common/OtpUnsuccessfulScreen';
 
 import VisitorDetailsScreen from '../screens/common/VisitorDetailsScreen';
 import ProfileScreen from '../screens/Admin/ProfileScreen';
+import EditVisitorScreen from '../screens/common/EditVisitorDetailsScreen';
+import ResetPasswordScreen from '../screens/common/ResetPasswordScreen';
+import EditProfileScreen from '../screens/Admin/EditProfileScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -46,7 +49,9 @@ export default function AppNavigator() {
       <Stack.Screen name='OtpUnsuccess' component={OtpUnsuccessfulScreen} />
       <Stack.Screen name='NewPassword' component={NewPasswordScreen} />
       <Stack.Screen name="AdminProfile" component={ProfileScreen} />
-
+       <Stack.Screen name="EditVisitorScreen" component={EditVisitorScreen} />
+      <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
+      <Stack.Screen name="EditProfile" component={EditProfileScreen} />
 
 
     </Stack.Navigator>

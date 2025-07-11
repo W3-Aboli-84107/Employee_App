@@ -12,6 +12,21 @@ import { Ionicons, MaterialCommunityIcons, FontAwesome } from '@expo/vector-icon
 export default function VisitorDetailsScreen({ route, navigation }) {
   const { visitor } = route.params;
 
+   const handleEdit = () => {
+  navigation.navigate('EditVisitorScreen', {
+    visitorData: visitor,
+    onSave: function (updated) {
+      // ✅ updated is the new visitor
+      if (updated) {
+        navigation.setParams({ visitor: updated });
+      } else {
+        console.warn('No updated data received.');
+      }
+    },
+  });
+};
+
+
   return (
     <ScrollView style={styles.container}>
       {/* Header */}
@@ -20,7 +35,7 @@ export default function VisitorDetailsScreen({ route, navigation }) {
           <Ionicons name="arrow-back" size={24} color="#fff" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{visitor.name}</Text>
-        <TouchableOpacity>
+         <TouchableOpacity onPress={handleEdit}>
           <Ionicons name="pencil" size={20} color="#E74C3C" />
         </TouchableOpacity>
       </View>

@@ -8,7 +8,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
 import Checkbox from 'expo-checkbox';
 
-export default function VisitorFormScreen({ navigation }) {
+export default function VisitorFormScreen({ navigation, route }) {
+   const { onSave } = route.params || {};
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
@@ -120,16 +121,36 @@ export default function VisitorFormScreen({ navigation }) {
       timestamp: Date.now(),
     };
 
-    try {
-      const existingData = await AsyncStorage.getItem('visitors');
-      const visitors = existingData ? JSON.parse(existingData) : [];
-      visitors.push(visitorData);
-      await AsyncStorage.setItem('visitors', JSON.stringify(visitors));
-      navigation.navigate('VisitorDetails', { visitor: visitorData });
-    } catch (error) {
-      console.error('Error saving visitor:', error);
+//     try {
+//       const existingData = await AsyncStorage.getItem('visitors');
+//       const visitors = existingData ? JSON.parse(existingData) : [];
+//       visitors.push(visitorData);
+//       await AsyncStorage.setItem('visitors', JSON.stringify(visitors));
+//       //navigation.navigate('VisitorDetails', { visitor: visitorData });
+//       if (onSave) {
+//   onSave(visitorData); // ✅ Pass visitor data back to AdminDashboard
+// }
+// navigation.goBack(); 
+//     } catch (error) {
+//       console.error('Error saving visitor:', error);
+//     }
+//   };
+
+ try {
+    const existingData = await AsyncStorage.getItem('visitors');
+    const visitors = existingData ? JSON.parse(existingData) : [];
+    visitors.push(visitorData);
+    await AsyncStorage.setItem('visitors', JSON.stringify(visitors));
+
+    if (onSave) {
+      onSave(visitorData); // ✅ Send back to dashboard
     }
-  };
+
+    navigation.goBack(); // ✅ Close the form
+  } catch (error) {
+    console.error('Error saving visitor:', error);
+  }
+};
 
    return (
     <ScrollView style={styles.container}>
