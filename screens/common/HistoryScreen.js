@@ -4,76 +4,108 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TouchableOpacity,
 } from 'react-native';
 import HeaderBar from '../../components/HeaderBar';
-import { Ionicons } from '@expo/vector-icons';
-import colors from '../../constants/colors';
+import { useIsFocused } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import VisitorCard from '../../components/VisiterCard';
+import colors from '../../constants/colors';
 
-const generateVisitors = (dayLabel) =>
-  Array.from({ length: 20 }, (_, i) => ({
-    name: `${dayLabel} Visitor ${i + 1}`,
-    day: dayLabel,
-  }));
+const groupVisitorsByDate = (visitors) => {
+  const grouped = {};
 
-const allVisitors = {
-  Today: generateVisitors('Today'),
-  Yesterday: generateVisitors('Yesterday'),
-  '2 Days Ago': generateVisitors('2 Days Ago'),
-  '3 Days Ago': generateVisitors('3 Days Ago'),
-  '4 Days Ago': generateVisitors('4 Days Ago'),
-  '5 Days Ago': generateVisitors('5 Days Ago'),
+  const getDayLabel = (dateStr) => {
+    const date = new Date(dateStr);
+    const today = new Date();
+    const diff = Math.floor((today - date) / (1000 * 60 * 60 * 24));
+
+    if (diff === 0) return 'Today';
+    if (diff === 1) return 'Yesterday';
+    return `${diff} Days Ago`;
+  };
+
+  visitors.forEach((visitor) => {
+    const label = getDayLabel(visitor.checkInTime);
+    if (!grouped[label]) {
+      grouped[label] = [];
+    }
+    grouped[label].push(visitor);
+  });
+
+  return grouped;
 };
 
-const HistoryScreen = ({ navigation }) => {
+export default function HistoryScreen({ navigation }) {
   const [searchQuery, setSearchQuery] = useState('');
-  const [filteredVisitors, setFilteredVisitors] = useState(allVisitors);
+  const [groupedVisitors, setGroupedVisitors] = useState({});
+  const isFocused = useIsFocused();
+
+  const loadVisitors = async () => {
+    const stored = await AsyncStorage.getItem('visitors');
+    const allVisitors = stored ? JSON.parse(stored) : [];
+
+    const filtered = searchQuery.trim()
+      ? allVisitors.filter((v) =>
+          v.name.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+      : allVisitors;
+
+    setGroupedVisitors(groupVisitorsByDate(filtered));
+  };
 
   useEffect(() => {
-    if (searchQuery.trim() === '') {
-      setFilteredVisitors(allVisitors);
-    } else {
-      const newFiltered = {};
-      for (const [day, visitors] of Object.entries(allVisitors)) {
-        const matches = visitors.filter((visitor) =>
-          visitor.name.toLowerCase().includes(searchQuery.toLowerCase())
-        );
-        if (matches.length > 0) {
-          newFiltered[day] = matches;
-        }
-      }
-      setFilteredVisitors(newFiltered);
+    if (isFocused) {
+      loadVisitors();
     }
-  }, [searchQuery]);
+  }, [isFocused, searchQuery]);
 
   return (
     <View style={styles.screen}>
       <HeaderBar onSearch={setSearchQuery} />
-
       <ScrollView contentContainerStyle={styles.container}>
-        {Object.keys(filteredVisitors).length === 0 ? (
-          <Text style={{ color: '#aaa', marginTop: 20 }}>No visitors found.</Text>
+        {Object.keys(groupedVisitors).length === 0 ? (
+          <Text style={styles.noVisitorsText}>No visitors found.</Text>
         ) : (
-          Object.entries(filteredVisitors).map(([day, visitors]) => (
+          Object.entries(groupedVisitors).map(([day, visitors]) => (
             <View key={day} style={{ marginBottom: 20 }}>
               <Text style={styles.label}>{day}</Text>
-              {visitors.map((visitor, index) => (
+              {/* {visitors.map((visitor) => (
                 <VisitorCard
-                  key={`${day}-${index}`}
+                  key={visitor.id}
                   name={visitor.name}
-                  onCall={() => console.log('Calling', visitor.name)}
+                  date={`Checked in at ${new Date(visitor.checkInTime).toLocaleTimeString([], {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })}`}
+                  onCall={() => console.log('Calling', visitor.phone)}
+                  onPress={() =>
+                    navigation.navigate('VisitorDetails', { visitor })
+                  }
                 />
-              ))}
+              ))} */}
+
+              {visitors.map((visitor, index) => (
+  <VisitorCard
+    key={visitor.id || `${visitor.name}-${index}`}
+    name={visitor.name}
+    date={`Checked in at ${new Date(visitor.checkInTime).toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit',
+    })}`}
+    onCall={() => console.log('Calling', visitor.phone)}
+    onPress={() =>
+      navigation.navigate('VisitorDetails', { visitor })
+    }
+  />
+))}
+
             </View>
           ))
         )}
       </ScrollView>
     </View>
   );
-};
-
-export default HistoryScreen;
+}
 
 const styles = StyleSheet.create({
   screen: {
@@ -89,5 +121,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 10,
     fontWeight: 'bold',
+  },
+  noVisitorsText: {
+    color: colors.textSecondary,
+    textAlign: 'center',
+    marginTop: 20,
+    fontSize: 16,
   },
 });

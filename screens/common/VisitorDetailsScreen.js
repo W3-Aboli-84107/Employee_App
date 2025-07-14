@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 import {
   View,
   Text,
@@ -8,24 +8,32 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { Ionicons, MaterialCommunityIcons, FontAwesome } from '@expo/vector-icons';
+import { useFocusEffect } from '@react-navigation/native';
 
 export default function VisitorDetailsScreen({ route, navigation }) {
-  const { visitor } = route.params;
+  const [visitor, setVisitor] = useState(route.params.visitor);
 
-   const handleEdit = () => {
-  navigation.navigate('EditVisitorScreen', {
-    visitorData: visitor,
-    onSave: function (updated) {
-      // ✅ updated is the new visitor
+  // Handle navigation to EditVisitorScreen
+  const handleEdit = () => {
+    navigation.navigate('EditVisitorScreen', {
+      visitorData: visitor,
+    });
+  };
+
+  // On return from EditVisitorScreen, update visitor locally and also pass to DashboardScreen
+  useFocusEffect(
+    useCallback(() => {
+      const updated = route.params?.updatedVisitor;
       if (updated) {
-        navigation.setParams({ visitor: updated });
-      } else {
-        console.warn('No updated data received.');
-      }
-    },
-  });
-};
+        setVisitor(updated); // update local visitor data
 
+        // Send updated data back to DashboardScreen
+        navigation.navigate('DashboardScreen', {
+          updatedVisitor: updated,
+        });
+      }
+    }, [route.params?.updatedVisitor])
+  );
 
   return (
     <ScrollView style={styles.container}>
@@ -35,7 +43,7 @@ export default function VisitorDetailsScreen({ route, navigation }) {
           <Ionicons name="arrow-back" size={24} color="#fff" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{visitor.name}</Text>
-         <TouchableOpacity onPress={handleEdit}>
+        <TouchableOpacity onPress={handleEdit}>
           <Ionicons name="pencil" size={20} color="#E74C3C" />
         </TouchableOpacity>
       </View>
@@ -51,26 +59,72 @@ export default function VisitorDetailsScreen({ route, navigation }) {
       </View>
 
       {/* Visitor Info Cards */}
-      <View style={styles.card}><Ionicons name="person" size={20} color="#E74C3C" /><Text style={styles.cardText}>{visitor.name}</Text></View>
-      <View style={styles.card}><Ionicons name="call" size={20} color="#E74C3C" /><Text style={styles.cardText}>{visitor.phone}</Text></View>
-      <View style={styles.card}><MaterialCommunityIcons name="email-outline" size={20} color="#E74C3C" /><Text style={styles.cardText}>{visitor.email}</Text></View>
-      <View style={styles.card}><Ionicons name="location" size={20} color="#E74C3C" /><Text style={styles.cardText}>{visitor.address}</Text></View>
-      
-      <View style={styles.row}>
-        <View style={styles.halfCard}><Ionicons name="calendar" size={20} color="#E74C3C" /><Text style={styles.cardText}>{visitor.visitType}</Text></View>
-        <View style={styles.halfCard}><Ionicons name="male-female" size={20} color="#E74C3C" /><Text style={styles.cardText}>{visitor.gender}</Text></View>
+      <View style={styles.card}>
+        <Ionicons name="person" size={20} color="#E74C3C" />
+        <Text style={styles.cardText}>{visitor.name}</Text>
+      </View>
+
+      <View style={styles.card}>
+        <Ionicons name="call" size={20} color="#E74C3C" />
+        <Text style={styles.cardText}>{visitor.phone}</Text>
+      </View>
+
+      <View style={styles.card}>
+        <MaterialCommunityIcons name="email-outline" size={20} color="#E74C3C" />
+        <Text style={styles.cardText}>{visitor.email}</Text>
+      </View>
+
+      <View style={styles.card}>
+        <Ionicons name="location" size={20} color="#E74C3C" />
+        <Text style={styles.cardText}>{visitor.address}</Text>
       </View>
 
       <View style={styles.row}>
-        <View style={styles.halfCard}><Ionicons name="time" size={20} color="#E74C3C" /><Text style={styles.cardText}>{visitor.inTime}</Text></View>
-        <View style={styles.halfCard}><Ionicons name="time-outline" size={20} color="#E74C3C" /><Text style={styles.cardText}>{visitor.outTime}</Text></View>
+        <View style={styles.halfCard}>
+          <Ionicons name="calendar" size={20} color="#E74C3C" />
+          <Text style={styles.cardText}>{visitor.visitType}</Text>
+        </View>
+        <View style={styles.halfCard}>
+          <Ionicons name="male-female" size={20} color="#E74C3C" />
+          <Text style={styles.cardText}>{visitor.gender}</Text>
+        </View>
       </View>
 
-      <View style={styles.card}><Ionicons name="information-circle-outline" size={20} color="#E74C3C" /><Text style={styles.cardText}>{visitor.purpose}</Text></View>
-      <View style={styles.card}><FontAwesome name="building" size={20} color="#E74C3C" /><Text style={styles.cardText}>{visitor.department}</Text></View>
-      <View style={styles.card}><MaterialCommunityIcons name="card-account-details-outline" size={20} color="#E74C3C" /><Text style={styles.cardText}>{visitor.idProof}</Text></View>
-      <View style={styles.card}><MaterialCommunityIcons name="account-search-outline" size={20} color="#E74C3C" /><Text style={styles.cardText}>{visitor.reference}</Text></View>
-      <View style={styles.card}><Ionicons name="car" size={20} color="#E74C3C" /><Text style={styles.cardText}>{visitor.vehicle}</Text></View>
+      <View style={styles.row}>
+        <View style={styles.halfCard}>
+          <Ionicons name="time" size={20} color="#E74C3C" />
+          <Text style={styles.cardText}>{visitor.inTime}</Text>
+        </View>
+        <View style={styles.halfCard}>
+          <Ionicons name="time-outline" size={20} color="#E74C3C" />
+          <Text style={styles.cardText}>{visitor.outTime}</Text>
+        </View>
+      </View>
+
+      <View style={styles.card}>
+        <Ionicons name="information-circle-outline" size={20} color="#E74C3C" />
+        <Text style={styles.cardText}>{visitor.purpose}</Text>
+      </View>
+
+      <View style={styles.card}>
+        <FontAwesome name="building" size={20} color="#E74C3C" />
+        <Text style={styles.cardText}>{visitor.department}</Text>
+      </View>
+
+      <View style={styles.card}>
+        <MaterialCommunityIcons name="card-account-details-outline" size={20} color="#E74C3C" />
+        <Text style={styles.cardText}>{visitor.idProof}</Text>
+      </View>
+
+      <View style={styles.card}>
+        <MaterialCommunityIcons name="account-search-outline" size={20} color="#E74C3C" />
+        <Text style={styles.cardText}>{visitor.reference}</Text>
+      </View>
+
+      <View style={styles.card}>
+        <Ionicons name="car" size={20} color="#E74C3C" />
+        <Text style={styles.cardText}>{visitor.vehicle}</Text>
+      </View>
     </ScrollView>
   );
 }
