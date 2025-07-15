@@ -1,31 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import {
   View,
+  Text,
+  TextInput,
   ScrollView,
   StyleSheet,
-  Text,
+  TouchableOpacity,
 } from 'react-native';
-import HeaderBar from '../../components/HeaderBar';
-import { useIsFocused } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import VisitorCard from '../../components/VisiterCard';
-import colors from '../../constants/colors';
+import { Ionicons } from '@expo/vector-icons';
+import { useIsFocused } from '@react-navigation/native';
+import colors from '../../constants/colors'; // ✅ make sure this path is correct
 
 const groupVisitorsByDate = (visitors) => {
   const grouped = {};
 
-  const getDayLabel = (dateStr) => {
+  const formatDateLabel = (dateStr) => {
     const date = new Date(dateStr);
-    const today = new Date();
-    const diff = Math.floor((today - date) / (1000 * 60 * 60 * 24));
-
-    if (diff === 0) return 'Today';
-    if (diff === 1) return 'Yesterday';
-    return `${diff} Days Ago`;
+    return date.toLocaleDateString('en-GB'); // DD/MM/YYYY
   };
 
   visitors.forEach((visitor) => {
-    const label = getDayLabel(visitor.checkInTime);
+    const label = formatDateLabel(visitor.checkInTime);
     if (!grouped[label]) {
       grouped[label] = [];
     }
@@ -61,44 +57,40 @@ export default function HistoryScreen({ navigation }) {
 
   return (
     <View style={styles.screen}>
-      <HeaderBar onSearch={setSearchQuery} />
+      {/* Header */}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Ionicons name="arrow-back" size={24} color="#fff" />
+        </TouchableOpacity>
+        <Text style={styles.title}>History</Text>
+      </View>
+
+      {/* Search Bar */}
+      <View style={styles.searchContainer}>
+        <Ionicons name="search" size={20} color="#999" style={styles.searchIcon} />
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Search"
+          placeholderTextColor="#aaa"
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+        />
+      </View>
+
+      {/* Visitor List */}
       <ScrollView contentContainerStyle={styles.container}>
         {Object.keys(groupedVisitors).length === 0 ? (
           <Text style={styles.noVisitorsText}>No visitors found.</Text>
         ) : (
-          Object.entries(groupedVisitors).map(([day, visitors]) => (
-            <View key={day} style={{ marginBottom: 20 }}>
-              <Text style={styles.label}>{day}</Text>
-              {/* {visitors.map((visitor) => (
-                <VisitorCard
-                  key={visitor.id}
-                  name={visitor.name}
-                  date={`Checked in at ${new Date(visitor.checkInTime).toLocaleTimeString([], {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  })}`}
-                  onCall={() => console.log('Calling', visitor.phone)}
-                  onPress={() =>
-                    navigation.navigate('VisitorDetails', { visitor })
-                  }
-                />
-              ))} */}
-
+          Object.entries(groupedVisitors).map(([date, visitors]) => (
+            <View key={date} style={styles.section}>
+              <Text style={styles.dateLabel}>{date}</Text>
               {visitors.map((visitor, index) => (
-  <VisitorCard
-    key={visitor.id || `${visitor.name}-${index}`}
-    name={visitor.name}
-    date={`Checked in at ${new Date(visitor.checkInTime).toLocaleTimeString([], {
-      hour: '2-digit',
-      minute: '2-digit',
-    })}`}
-    onCall={() => console.log('Calling', visitor.phone)}
-    onPress={() =>
-      navigation.navigate('VisitorDetails', { visitor })
-    }
-  />
-))}
-
+                <View key={index} style={styles.visitorCard}>
+                  <Text style={styles.visitorName}>{visitor.name}</Text>
+                  <Text style={styles.visitorPurpose}>{visitor.purpose}</Text>
+                </View>
+              ))}
             </View>
           ))
         )}
@@ -111,21 +103,72 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: colors.background,
+    paddingHorizontal: 16,
+    paddingTop: 16,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  title: {
+    color: '#fff',
+    fontSize: 22,
+    fontWeight: 'bold',
+    marginLeft: 12,
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#1E1E2C',
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    marginBottom: 20,
+    height: 40,
+  },
+  searchIcon: {
+    marginRight: 8,
+  },
+  searchInput: {
+    flex: 1,
+    color: '#fff',
+    fontSize: 16,
   },
   container: {
-    padding: 16,
     paddingBottom: 100,
   },
-  label: {
-    color: colors.text,
-    fontSize: 16,
+  section: {
+    marginBottom: 20,
+  },
+  dateLabel: {
+    color: '#ccc',
+    fontSize: 14,
+    fontWeight: 'bold',
     marginBottom: 10,
+  },
+  visitorCard: {
+    backgroundColor: '#2A2A3B',
+    borderRadius: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+  },
+  visitorName: {
+    color: '#fff',
+    fontSize: 14,
     fontWeight: 'bold',
   },
+  visitorPurpose: {
+    color: '#aaa',
+    fontSize: 13,
+    fontStyle: 'italic',
+  },
   noVisitorsText: {
-    color: colors.textSecondary,
+    color: '#aaa',
     textAlign: 'center',
-    marginTop: 20,
+    marginTop: 40,
     fontSize: 16,
   },
 });

@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -8,47 +8,34 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { Ionicons, MaterialCommunityIcons, FontAwesome } from '@expo/vector-icons';
-import { useFocusEffect } from '@react-navigation/native';
 
 export default function VisitorDetailsScreen({ route, navigation }) {
   const [visitor, setVisitor] = useState(route.params.visitor);
 
-  // Handle navigation to EditVisitorScreen
   const handleEdit = () => {
     navigation.navigate('EditVisitorScreen', {
       visitorData: visitor,
+      onSave: (updatedData) => {
+        setVisitor(updatedData); // update local state with new visitor data
+      },
     });
   };
 
-  // On return from EditVisitorScreen, update visitor locally and also pass to DashboardScreen
-  useFocusEffect(
-    useCallback(() => {
-      const updated = route.params?.updatedVisitor;
-      if (updated) {
-        setVisitor(updated); // update local visitor data
-
-        // Send updated data back to DashboardScreen
-        navigation.navigate('DashboardScreen', {
-          updatedVisitor: updated,
-        });
-      }
-    }, [route.params?.updatedVisitor])
-  );
-
   return (
     <ScrollView style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={24} color="#fff" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{visitor.name}</Text>
+        <View style={styles.headerTextContainer}>
+          <Text style={styles.screenTitle}>Visitor Details</Text>
+          <Text style={styles.headerTitle}>{visitor.name}</Text>
+        </View>
         <TouchableOpacity onPress={handleEdit}>
           <Ionicons name="pencil" size={20} color="#E74C3C" />
         </TouchableOpacity>
       </View>
 
-      {/* Profile Image */}
       <View style={styles.avatarContainer}>
         <Image
           source={{
@@ -58,7 +45,6 @@ export default function VisitorDetailsScreen({ route, navigation }) {
         />
       </View>
 
-      {/* Visitor Info Cards */}
       <View style={styles.card}>
         <Ionicons name="person" size={20} color="#E74C3C" />
         <Text style={styles.cardText}>{visitor.name}</Text>
@@ -82,7 +68,7 @@ export default function VisitorDetailsScreen({ route, navigation }) {
       <View style={styles.row}>
         <View style={styles.halfCard}>
           <Ionicons name="calendar" size={20} color="#E74C3C" />
-          <Text style={styles.cardText}>{visitor.visitType}</Text>
+          <Text style={styles.cardText}>{visitor.purpose}</Text>
         </View>
         <View style={styles.halfCard}>
           <Ionicons name="male-female" size={20} color="#E74C3C" />
@@ -103,12 +89,12 @@ export default function VisitorDetailsScreen({ route, navigation }) {
 
       <View style={styles.card}>
         <Ionicons name="information-circle-outline" size={20} color="#E74C3C" />
-        <Text style={styles.cardText}>{visitor.purpose}</Text>
+        <Text style={styles.cardText}>{visitor.description}</Text>
       </View>
 
       <View style={styles.card}>
         <FontAwesome name="building" size={20} color="#E74C3C" />
-        <Text style={styles.cardText}>{visitor.department}</Text>
+        <Text style={styles.cardText}>{visitor.whomToMeet}</Text>
       </View>
 
       <View style={styles.card}>
@@ -118,7 +104,7 @@ export default function VisitorDetailsScreen({ route, navigation }) {
 
       <View style={styles.card}>
         <MaterialCommunityIcons name="account-search-outline" size={20} color="#E74C3C" />
-        <Text style={styles.cardText}>{visitor.reference}</Text>
+        <Text style={styles.cardText}>{visitor.relation}</Text>
       </View>
 
       <View style={styles.card}>
@@ -139,10 +125,18 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 20,
+  },
+  headerTextContainer: {
+    alignItems: 'center',
+  },
+  screenTitle: {
+    color: '#efe0deff',
+    fontSize: 18,
+    fontWeight: 'bold',
   },
   headerTitle: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold',
     color: '#fff',
   },
@@ -169,6 +163,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     marginLeft: 12,
     fontSize: 15,
+    flexShrink: 1,
   },
   row: {
     flexDirection: 'row',
@@ -178,9 +173,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#1E1E2C',
-    padding: 12,
+    padding: 20,
     borderRadius: 8,
     marginBottom: 10,
     width: '48%',
   },
+
+  
 });

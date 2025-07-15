@@ -13,8 +13,8 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 const ForgetPasswordScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
-  const routeEmail = route.params?.email || ''; // ✅ Use optional chaining safely
-  const [email, setEmail] = useState(routeEmail); // ✅ Initialize state with route email
+  const routeEmail = route.params?.email || ''; 
+  const [email, setEmail] = useState(routeEmail); 
 
   const validateEmail = (email) => {
     const regex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;

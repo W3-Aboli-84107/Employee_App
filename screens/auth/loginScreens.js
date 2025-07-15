@@ -102,7 +102,7 @@ const LoginScreen = () => {
     >
       <View style={styles.logoContainer}>
         <Image source={require('../../assets/logo.png')} style={styles.logo} />
-        <Text style={styles.welcomeText}>Welcome Back</Text>
+        {/* <Text style={styles.welcomeText}>Welcome Back</Text> */}
       </View>
 
       <View style={styles.formContainer}>
@@ -172,21 +172,29 @@ const LoginScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0D1117' },
+  container:
+   { 
+    flex: 1, 
+    backgroundColor: '#0D1117',
+    
+   },
+
   logoContainer: {
     alignItems: 'center',
-    paddingTop: 50,
+    paddingTop: 200,
     paddingBottom: 30,
   },
   logo: {
     width: 100,
     height: 100,
   },
-  welcomeText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#fff',
-  },
+
+  // welcomeText: {
+  //   fontSize: 24,
+  //   fontWeight: 'bold',
+  //   color: '#fff',
+  // },
+  
   formContainer: {
     flex: 1,
     paddingHorizontal: 25,
@@ -203,7 +211,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#161B22',
     borderRadius: 10,
     paddingHorizontal: 15,
-    marginBottom: 20,
+    marginBottom: 30,
     borderWidth: 1,
     borderColor: '#30363D',
   },

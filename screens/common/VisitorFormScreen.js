@@ -88,7 +88,7 @@ export default function VisitorFormScreen({ navigation, route }) {
       Alert.alert('Invalid Phone Number', 'Phone number must be 10 digits.');
       return;
     }
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const emailRegex = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/;
     if (!emailRegex.test(email)) {
       Alert.alert('Invalid Email', 'Enter a valid email address.');
       return;
@@ -156,10 +156,10 @@ export default function VisitorFormScreen({ navigation, route }) {
     <ScrollView style={styles.container}>
       <Text style={styles.title}>Visitor’s Detail</Text>
 
-      {[
+      {/* {[
         { icon: 'person', placeholder: 'Visitor Name', value: name, setter: setName },
         { icon: 'call', placeholder: 'Phone number', value: phone, setter: setPhone, keyboardType: 'phone-pad', maxLength: 10 },
-        { icon: 'email-outline', placeholder: 'Email', value: email, setter: setEmail, keyboardType: 'email-address' },
+        { icon: 'email-outline', placeholder: 'Email', value: email,setter: (text) => setEmail(text.toLowerCase()), keyboardType: 'email-address' },
         { icon: 'location-outline', placeholder: 'Address', value: address, setter: setAddress },
       ].map((field, i) => (
         <View key={i} style={styles.inputBox}>
@@ -174,7 +174,32 @@ export default function VisitorFormScreen({ navigation, route }) {
             maxLength={field.maxLength}
           />
         </View>
-      ))}
+      ))} */}
+
+      {[
+  { icon: 'person', placeholder: 'Visitor Name', value: name, setter: setName },
+  { icon: 'call', placeholder: 'Phone number', value: phone, setter: setPhone, keyboardType: 'phone-pad', maxLength: 10 },
+  { icon: 'email-outline', placeholder: 'Email', value: email, setter: (text) => setEmail(text.toLowerCase()), keyboardType: 'email-address' },
+  { icon: 'location-outline', placeholder: 'Address', value: address, setter: setAddress },
+].map((field, i) => (
+  <View key={i} style={styles.inputBox}>
+    {field.icon === 'email-outline' ? (
+      <MaterialCommunityIcons name={field.icon} size={20} color="#E74C3C" style={styles.icon} />
+    ) : (
+      <Ionicons name={field.icon} size={20} color="#E74C3C" style={styles.icon} />
+    )}
+    <TextInput
+      placeholder={field.placeholder}
+      placeholderTextColor="#aaa"
+      style={styles.input}
+      value={field.value}
+      onChangeText={field.setter}
+      keyboardType={field.keyboardType || 'default'}
+      maxLength={field.maxLength}
+    />
+  </View>
+))}
+
 
       {/* Gender */}
       <TouchableOpacity style={styles.inputBox} onPress={() => setGenderModalVisible(true)}>
@@ -213,72 +238,54 @@ export default function VisitorFormScreen({ navigation, route }) {
         <Text style={[styles.input, { paddingTop: 12 }]}>
           {selectedIdProof || 'Select ID Proof'}
         </Text>
-      </TouchableOpacity>
+      </TouchableOpacity> 
 
 
-      {/* Aadhar Number */}
-      {selectedIdProof === 'Aadhar Card' && (
-        <View style={styles.inputBox}>
-          <MaterialCommunityIcons name="card-bulleted-outline" size={20} color="#E74C3C" style={styles.icon} />
-          <TextInput
-            placeholder="Enter your Aadhar number"
-            placeholderTextColor="#aaa"
-            style={styles.input}
-            value={aadharNumber}
-            onChangeText={setAadharNumber}
-            keyboardType="numeric"
-            maxLength={12}
-          />
-        </View>
-      )}
+           {/* Aadhar Number */}
+           {selectedIdProof === 'Aadhar Card' && (
+              <View style={styles.inputBox}>
+                <MaterialCommunityIcons name="card-bulleted-outline" size={20} color="#E74C3C" style={styles.icon} />
+                <TextInput
+                  placeholder="Enter your Aadhar number"
+                  placeholderTextColor="#aaa"
+                  style={styles.input}
+                  value={aadharNumber}
+                  onChangeText={setAadharNumber}
+                  keyboardType="numeric"
+                  maxLength={12}
+                />
+              </View>
+            )}
+         
 
-
-
-      {/* Aadhar Number */}
-      {selectedIdProof === 'Aadhar Card' && (
-        <View style={styles.inputBox}>
-          <MaterialCommunityIcons name="card-bulleted-outline" size={20} color="#E74C3C" style={styles.icon} />
-          <TextInput
-            placeholder="Enter your Aadhar number"
-            placeholderTextColor="#aaa"
-            style={styles.input}
-            value={aadharNumber}
-            onChangeText={setAadharNumber}
-            keyboardType="numeric"
-            maxLength={12}
-          />
-          {/* PanCard Number */}
           {selectedIdProof === 'Pan Card' && (
-            <View style={styles.inputBox}>
-              <MaterialCommunityIcons name="card-text-outline" size={20} color="#E74C3C" style={styles.icon} />
-              <TextInput
-                placeholder="Enter your PAN number"
-                placeholderTextColor="#aaa"
-                style={styles.input}
-                value={panNumber}
-                onChangeText={setPanNumber}
-                autoCapitalize="characters"
-                maxLength={10}
-              />
-            </View>
-          )}
+              <View style={styles.inputBox}>
+                <MaterialCommunityIcons name="card-text-outline" size={20} color="#E74C3C" style={styles.icon} />
+                <TextInput
+                  placeholder="Enter your PAN number"
+                  placeholderTextColor="#aaa"
+                  style={styles.input}
+                  value={panNumber}
+                  onChangeText={(text) => setPanNumber(text.toUpperCase())}
+                  autoCapitalize="characters"
+                  maxLength={10}
+                />
+              </View>
+            )}
 
+        
           {selectedIdProof === 'Others' && (
-            <View style={styles.inputBox}>
-              <MaterialCommunityIcons name="card-text-outline" size={20} color="#E74C3C" style={styles.icon} />
-              <TextInput
-                placeholder="Enter ID details"
-                placeholderTextColor="#aaa"
-                style={styles.input}
-                value={otherIdDetails}
-                onChangeText={setOtherIdDetails}
-              />
-            </View>
-          )}
-
-        </View>
-      )}
-
+              <View style={styles.inputBox}>
+                <MaterialCommunityIcons name="card-text-outline" size={20} color="#E74C3C" style={styles.icon} />
+                <TextInput
+                  placeholder="Enter ID details"
+                  placeholderTextColor="#aaa"
+                  style={styles.input}
+                  value={otherIdDetails}
+                  onChangeText={setOtherIdDetails}
+                />
+              </View>
+)}
 
       {/* Reference */}
       <TouchableOpacity style={styles.inputBox} onPress={() => setReferenceModalVisible(true)}>
@@ -473,33 +480,129 @@ export default function VisitorFormScreen({ navigation, route }) {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#0D0D1A', padding: 20 },
   title: { fontSize: 18, color: '#fff', fontWeight: 'bold', marginBottom: 16 },
+
   inputBox: {
     flexDirection: 'row', backgroundColor: '#1E1E2C', borderRadius: 8,
     padding: 10, alignItems: 'center', marginBottom: 10,
   },
+
   input: { color: '#fff', marginLeft: 10, flex: 1 },
   icon: { marginLeft: 4 },
+
   textAreaBox: {
     flexDirection: 'row', backgroundColor: '#1E1E2C', borderRadius: 8,
     padding: 10, alignItems: 'flex-start', marginBottom: 10,
   },
-  textArea: { color: '#fff', marginLeft: 10, flex: 1, height: 80, textAlignVertical: 'top' },
-  photoSection: { alignItems: 'center', marginVertical: 20 },
-  image: { width: 100, height: 100, borderRadius: 8, marginBottom: 10 },
-  photoPlaceholderText: { color: '#aaa', marginBottom: 10 },
-  photoButton: { backgroundColor: '#E74C3C', padding: 10, borderRadius: 6 },
-  photoButtonText: { color: '#fff', fontWeight: 'bold' },
-  actionRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 30 },
-  cancelButton: { backgroundColor: '#1E1E2C', paddingVertical: 14, paddingHorizontal: 28, borderRadius: 8 },
-  saveButton: { backgroundColor: '#E74C3C', paddingVertical: 14, paddingHorizontal: 28, borderRadius: 8 },
-  actionText: { color: '#fff', fontWeight: 'bold' },
-  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', alignItems: 'center' },
-  modalBox: { backgroundColor: '#fff', padding: 20, borderRadius: 10, width: '80%' },
-  modalTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 10, color: '#333' },
-  checkboxItem: { flexDirection: 'row', alignItems: 'center', marginBottom: 10 },
-  radioItem: { flexDirection: 'row', alignItems: 'center', marginVertical: 6 },
-  modalText: { fontSize: 16, marginLeft: 10 },
-  closeButton: { backgroundColor: '#E74C3C', padding: 10, marginTop: 10, borderRadius: 6, alignItems: 'center' },
+
+  textArea: 
+  { 
+    color: '#fff',
+     marginLeft: 10, 
+     flex: 1, 
+     height: 80, 
+     textAlignVertical: 'top' 
+    },
+
+  photoSection:
+   {
+     alignItems: 'center', 
+    marginVertical: 20 
+  },
+
+  image:
+   { 
+    width: 100,
+     height: 100, 
+    borderRadius: 8, 
+    marginBottom: 10 
+
+   },
+
+  photoPlaceholderText:
+   { 
+    color: '#aaa',
+     marginBottom: 10
+    },
+
+  photoButton: 
+    { 
+    backgroundColor: '#E74C3C',
+     padding: 10, 
+     borderRadius: 6 
+
+    },
+
+  photoButtonText:
+   { 
+    color: '#fff', 
+    fontWeight: 'bold' 
+  },
+
+  actionRow:
+   { flexDirection: 'row',
+     justifyContent: 'space-between',
+      marginTop: 30
+     },
+
+  cancelButton:
+   { 
+    backgroundColor: '#1E1E2C', 
+    paddingVertical: 14, 
+    paddingHorizontal: 28, 
+    borderRadius: 8 
+  },
+
+  saveButton:
+   { 
+    backgroundColor: '#E74C3C', 
+    paddingVertical: 10,
+     paddingHorizontal: 30,
+      borderRadius: 8 
+    },
+
+  actionText: 
+  { color: '#fff', 
+    fontWeight: 'bold' },
+
+  modalOverlay: 
+  { flex: 1, 
+    backgroundColor: 'rgba(0,0,0,0.6)', 
+    justifyContent: 'center', 
+    alignItems: 'center' },
+
+  modalBox:
+   { 
+    backgroundColor: '#fff',
+     padding: 20,
+      borderRadius: 10,
+      width: '80%' },
+
+  modalTitle:
+   { fontSize: 18, 
+    fontWeight: 'bold',
+     marginBottom: 10,
+      color: '#333' },
+
+  checkboxItem:
+   { flexDirection: 'row',
+     alignItems: 'center', 
+     marginBottom: 10 },
+
+  radioItem:
+   { flexDirection: 'row',
+     alignItems: 'center', 
+     marginVertical: 6 },
+
+  modalText:
+   { fontSize: 16, 
+    marginLeft: 10 },
+
+  closeButton:
+   { backgroundColor: '#E74C3C', 
+    padding: 10, 
+    marginTop: 10,
+     borderRadius: 6, 
+     alignItems: 'center' },
 
 });
 

@@ -15,9 +15,15 @@ const VisitorCard = ({ name, date, onCall, onPress, onCheckOut }) => {
         </View>
 
         <View style={styles.actions}>
-          <TouchableOpacity onPress={onCheckOut} style={styles.iconButton}>
+          {/* <TouchableOpacity onPress={onCheckOut} style={styles.iconButton}>
             <MaterialCommunityIcons name="logout" size={22} color="#fff" />
-          </TouchableOpacity>
+          </TouchableOpacity> */}
+          {onCheckOut && (
+  <TouchableOpacity onPress={onCheckOut} style={styles.iconButton}>
+    <MaterialCommunityIcons name="logout" size={22} color="#fff" />
+  </TouchableOpacity>
+)}
+
           <TouchableOpacity
             onPress={onCall}
             style={styles.iconButton}
