@@ -1,4 +1,3 @@
-
 // import React, { useState } from 'react';
 // import {
 //   View,
@@ -19,7 +18,6 @@
 //   const [lastName, setLastName] = useState('');
 //   const [phone, setPhone] = useState('');
 //   const [email, setEmail] = useState('');
-//   // const [address, setAddress] = useState('');
 //   const [password, setPassword] = useState('');
 //   const [confirmPassword, setConfirmPassword] = useState('');
 //   const [securePassword, setSecurePassword] = useState(true);
@@ -72,11 +70,6 @@
 //       Alert.alert('Error', 'Please enter a valid email address.');
 //       return;
 //     }
-
-//     // if (!address.trim()) {
-//     //   Alert.alert('Error', 'Address is required.');
-//     //   return;
-//     // }
 
 //     if (!validatePassword(password)) {
 //       Alert.alert(
@@ -132,11 +125,13 @@
 //         keyboardShouldPersistTaps="handled"
 //         showsVerticalScrollIndicator={false}
 //       >
-//         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-//           <Icon name="arrow-back" size={24} color="#fff" />
-//         </TouchableOpacity>
-
-//         <Text style={styles.title}>Sign Up</Text>
+//         {/* Header Row with Back Icon and Sign Up Title */}
+//         <View style={styles.headerRow}>
+//           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+//             <Icon name="arrow-back" size={24} color="#fff" />
+//           </TouchableOpacity>
+//           <Text style={styles.title}>Sign Up</Text>
+//         </View>
 
 //         <View style={styles.row}>
 //           <TextInput
@@ -182,8 +177,6 @@
 //           value={email}
 //           onChangeText={setEmail}
 //         />
-
-       
 
 //         <View style={styles.passwordContainer}>
 //           <TextInput
@@ -261,17 +254,19 @@
 //     backgroundColor: '#0D1117',
 //     paddingTop: Platform.OS === 'ios' ? 60 : 40,
 //   },
+//   headerRow: {
+//     flexDirection: 'row',
+//     alignItems: 'center',
+//     marginBottom: 30,
+//   },
 //   backButton: {
-//     alignSelf: 'flex-start',
-//     marginBottom: 20,
 //     padding: 8,
+//     marginRight: 10,
 //   },
 //   title: {
 //     fontSize: 28,
 //     color: '#F46D5D',
 //     fontWeight: 'bold',
-//     marginBottom: 30,
-//     marginLeft: 30,
 //   },
 //   row: {
 //     flexDirection: 'row',
@@ -382,7 +377,6 @@
 
 // export default SignUpScreen;
 
-
 import React, { useState } from 'react';
 import {
   View,
@@ -414,12 +408,7 @@ const SignUpScreen = ({ navigation }) => {
     const numericText = text.replace(/[^0-9]/g, '');
     const trimmedText = numericText.slice(0, 10);
     setPhone(trimmedText);
-
-    if (trimmedText.length < 10) {
-      setPhoneError('Phone number must be exactly 10 digits');
-    } else {
-      setPhoneError('');
-    }
+    setPhoneError(trimmedText.length < 10 ? 'Phone number must be exactly 10 digits' : '');
   };
 
   const validatePhoneNumber = () => {
@@ -432,22 +421,15 @@ const SignUpScreen = ({ navigation }) => {
   };
 
   const validatePassword = (pwd) => {
-    const passwordRegex =
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{6,}$/;
-    return passwordRegex.test(pwd);
+    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{6,}$/;
+    return regex.test(pwd);
   };
 
   const handleSignUp = async () => {
-    if (!firstName.trim()) {
-      Alert.alert('Error', 'First name is required.');
+    if (!firstName.trim() || !lastName.trim()) {
+      Alert.alert('Error', 'First and last name are required.');
       return;
     }
-
-    if (!lastName.trim()) {
-      Alert.alert('Error', 'Last name is required.');
-      return;
-    }
-
     if (!validatePhoneNumber()) return;
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -457,10 +439,7 @@ const SignUpScreen = ({ navigation }) => {
     }
 
     if (!validatePassword(password)) {
-      Alert.alert(
-        'Invalid Password',
-        'Password must be at least 6 characters and include:\n- Uppercase letter\n- Lowercase letter\n- Number\n- Special character'
-      );
+      Alert.alert('Invalid Password', 'Password must be at least 6 characters and include uppercase, lowercase, number, and special character.');
       return;
     }
 
@@ -494,23 +473,21 @@ const SignUpScreen = ({ navigation }) => {
         { text: 'OK', onPress: () => navigation.replace('Login') },
       ]);
     } catch (error) {
-      console.error('Error saving user data', error);
-      Alert.alert('Error', 'Failed to save user data. Please try again.');
+      console.error('Signup Error:', error);
+      Alert.alert('Error', 'Failed to save user data.');
     }
   };
 
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1 }}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 20}
+    <ScrollView
+      contentContainerStyle={{ flexGrow: 1 }}
+      keyboardShouldPersistTaps="handled"
     >
-      <ScrollView
-        contentContainerStyle={styles.container}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.container}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 20}
       >
-        {/* Header Row with Back Icon and Sign Up Title */}
         <View style={styles.headerRow}>
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
             <Icon name="arrow-back" size={24} color="#fff" />
@@ -548,9 +525,7 @@ const SignUpScreen = ({ navigation }) => {
             maxLength={10}
             onBlur={validatePhoneNumber}
           />
-          {phoneError ? (
-            <Text style={styles.errorText}>{phoneError}</Text>
-          ) : null}
+          {phoneError ? <Text style={styles.errorText}>{phoneError}</Text> : null}
         </View>
 
         <TextInput
@@ -596,20 +571,14 @@ const SignUpScreen = ({ navigation }) => {
         <View style={styles.roleContainer}>
           <Text style={styles.roleLabel}>Select Role:</Text>
 
-          <TouchableOpacity
-            style={styles.radioButtonContainer}
-            onPress={() => setRole('admin')}
-          >
+          <TouchableOpacity style={styles.radioButtonContainer} onPress={() => setRole('admin')}>
             <View style={styles.radioCircle}>
               {role === 'admin' && <View style={styles.selectedRb} />}
             </View>
             <Text style={styles.radioText}>Admin</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity
-            style={styles.radioButtonContainer}
-            onPress={() => setRole('superadmin')}
-          >
+          <TouchableOpacity style={styles.radioButtonContainer} onPress={() => setRole('superadmin')}>
             <View style={styles.radioCircle}>
               {role === 'superadmin' && <View style={styles.selectedRb} />}
             </View>
@@ -617,7 +586,7 @@ const SignUpScreen = ({ navigation }) => {
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity style={styles.signUpButton} onPress={handleSignUp} activeOpacity={0.8}>
+        <TouchableOpacity style={styles.signUpButton} onPress={handleSignUp}>
           <Text style={styles.signUpButtonText}>Sign Up</Text>
         </TouchableOpacity>
 
@@ -627,8 +596,8 @@ const SignUpScreen = ({ navigation }) => {
             <Text style={styles.loginLink}>Log in</Text>
           </TouchableOpacity>
         </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+      </KeyboardAvoidingView>
+    </ScrollView>
   );
 };
 
@@ -669,6 +638,13 @@ const styles = StyleSheet.create({
   },
   inputError: {
     borderColor: '#FF6B6B',
+  },
+  errorText: {
+    color: '#FF6B6B',
+    fontSize: 14,
+    marginTop: -10,
+    marginBottom: 16,
+    marginLeft: 4,
   },
   passwordContainer: {
     flexDirection: 'row',
@@ -714,13 +690,6 @@ const styles = StyleSheet.create({
     color: '#F46D5D',
     fontWeight: 'bold',
     fontSize: 16,
-  },
-  errorText: {
-    color: '#FF6B6B',
-    fontSize: 14,
-    marginTop: -10,
-    marginBottom: 16,
-    marginLeft: 4,
   },
   roleContainer: {
     marginBottom: 20,
