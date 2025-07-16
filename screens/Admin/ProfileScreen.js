@@ -12,6 +12,7 @@ const { width, height } = Dimensions.get('window');
 const ProfileScreen = ({ navigation }) => {
   const [user, setUser] = useState(null);
   const [userImage, setUserImage] = useState(null);
+  
 
   // Reload user data when screen is focused
   useFocusEffect(

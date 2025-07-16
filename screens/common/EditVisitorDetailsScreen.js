@@ -42,7 +42,13 @@ export default function EditVisitorScreen({ route, navigation }) {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.heading}>Edit Visitor’s Details</Text>
+      <View style={styles.headerRow}>
+  <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+    <Ionicons name="arrow-back" size={24} color="#fff" />
+  </TouchableOpacity>
+  <Text style={styles.headerTitle}>Edit Visitor’s Details</Text>
+</View>
+
 
       <CustomInput icon="person" placeholder="Name" value={form.name}
         onChangeText={(text) => handleChange('name', text)} />
@@ -64,15 +70,13 @@ export default function EditVisitorScreen({ route, navigation }) {
   }
 />
 
-
-
-
       <CustomInput icon="location" placeholder="Address"
         value={form.address} onChangeText={(text) => handleChange('address', text)} />
 
       <CustomPicker icon="male" selectedValue={form.gender}
         onValueChange={(value) => handleChange('gender', value)}
-        options={['Male', 'Female', 'Other']} />
+        options={['Male', 'Female', 'Other']} 
+         />
 
       <CustomPicker icon="briefcase" selectedValue={form.purpose}
         onValueChange={(value) => handleChange('purpose', value)}
@@ -112,8 +116,8 @@ const CustomInput = ({ icon, ...props }) => (
 
 const CustomPicker = ({ icon, selectedValue, onValueChange, options }) => (
   <View style={styles.inputContainer}>
-    <Ionicons name={icon} size={20} color="#E74C3C" style={styles.icon} />
-    <Picker selectedValue={selectedValue} onValueChange={onValueChange} style={styles.picker}>
+    <Ionicons name={icon} size={20} color="#E74C3C" style={styles.icon}  />
+    <Picker selectedValue={selectedValue} onValueChange={onValueChange} style={styles.picker} dropdownIconColor="#fff" >
       {options.map((item, idx) => (
         <Picker.Item key={idx} label={item} value={item} />
       ))}
@@ -121,17 +125,52 @@ const CustomPicker = ({ icon, selectedValue, onValueChange, options }) => (
   </View>
 );
 
+
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#0D0D1A',
     padding: 16,
     paddingBottom: 100,
   },
+
+  headerRow: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  marginBottom: 20,
+},
+backButton: {
+  marginRight: 10,
+},
+headerTitle: {
+  color: '#fff',
+  fontSize: 20,
+  fontWeight: 'bold',
+  marginTop:40,
+  marginLeft:30,
+},
+
+headerRow: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  marginTop: 30,
+  marginBottom: 20,
+},
+backButton: {
+  marginRight: 12,
+},
+headerTitle: {
+  color: '#fff',
+  fontSize: 20,
+  fontWeight: 'bold',
+},
+
   heading: {
     color: '#fff',
     fontSize: 20,
+    marginTop:30,
     fontWeight: 'bold',
-    marginBottom: 20,
+    marginBottom: 30,
+   
   },
   inputContainer: {
     backgroundColor: '#1C1C2E',
@@ -142,12 +181,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
+  
   icon: {
+    
     marginRight: 8,
+   
   },
   input: {
     color: '#fff',
     flex: 1,
+    
     fontSize: 16,
   },
   picker: {

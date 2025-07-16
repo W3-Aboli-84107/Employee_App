@@ -1,3 +1,4 @@
+
 // import React, { useState } from 'react';
 // import {
 //   View,
@@ -18,13 +19,13 @@
 //   const [lastName, setLastName] = useState('');
 //   const [phone, setPhone] = useState('');
 //   const [email, setEmail] = useState('');
-//   const [address, setAddress] = useState('');
+//   // const [address, setAddress] = useState('');
 //   const [password, setPassword] = useState('');
 //   const [confirmPassword, setConfirmPassword] = useState('');
 //   const [securePassword, setSecurePassword] = useState(true);
 //   const [secureConfirmPassword, setSecureConfirmPassword] = useState(true);
 //   const [phoneError, setPhoneError] = useState('');
-//   const [role, setRole] = useState('admin'); // default role
+//   const [role, setRole] = useState('admin');
 
 //   const handlePhoneChange = (text) => {
 //     const numericText = text.replace(/[^0-9]/g, '');
@@ -72,10 +73,10 @@
 //       return;
 //     }
 
-//     if (!address.trim()) {
-//       Alert.alert('Error', 'Address is required.');
-//       return;
-//     }
+//     // if (!address.trim()) {
+//     //   Alert.alert('Error', 'Address is required.');
+//     //   return;
+//     // }
 
 //     if (!validatePassword(password)) {
 //       Alert.alert(
@@ -94,7 +95,6 @@
 //       const usersData = await AsyncStorage.getItem('users');
 //       const users = usersData ? JSON.parse(usersData) : [];
 
-//       // Check if email already exists
 //       const existingUser = users.find((u) => u.email === email);
 //       if (existingUser) {
 //         Alert.alert('Error', 'Email already registered.');
@@ -106,7 +106,6 @@
 //         lastName,
 //         phone,
 //         email,
-//         address,
 //         password,
 //         role,
 //       };
@@ -125,14 +124,19 @@
 //   return (
 //     <KeyboardAvoidingView
 //       style={{ flex: 1 }}
-//       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+//       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+//       keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 20}
 //     >
-//       <ScrollView contentContainerStyle={styles.container}>
+//       <ScrollView
+//         contentContainerStyle={styles.container}
+//         keyboardShouldPersistTaps="handled"
+//         showsVerticalScrollIndicator={false}
+//       >
 //         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
 //           <Icon name="arrow-back" size={24} color="#fff" />
 //         </TouchableOpacity>
 
-//         <Text style={styles.title}>Create Account</Text>
+//         <Text style={styles.title}>Sign Up</Text>
 
 //         <View style={styles.row}>
 //           <TextInput
@@ -179,14 +183,7 @@
 //           onChangeText={setEmail}
 //         />
 
-//         <TextInput
-//           style={styles.input}
-//           placeholder="Full address"
-//           placeholderTextColor="#C9D1D9"
-//           value={address}
-//           onChangeText={setAddress}
-//           multiline
-//         />
+       
 
 //         <View style={styles.passwordContainer}>
 //           <TextInput
@@ -218,7 +215,6 @@
 //           </TouchableOpacity>
 //         </View>
 
-//         {/* Role Selector */}
 //         <View style={styles.roleContainer}>
 //           <Text style={styles.roleLabel}>Select Role:</Text>
 
@@ -242,7 +238,6 @@
 //             <Text style={styles.radioText}>Super Admin</Text>
 //           </TouchableOpacity>
 //         </View>
-
 
 //         <TouchableOpacity style={styles.signUpButton} onPress={handleSignUp} activeOpacity={0.8}>
 //           <Text style={styles.signUpButtonText}>Sign Up</Text>
@@ -276,7 +271,7 @@
 //     color: '#F46D5D',
 //     fontWeight: 'bold',
 //     marginBottom: 30,
-//     textAlign: 'center',
+//     marginLeft: 30,
 //   },
 //   row: {
 //     flexDirection: 'row',
@@ -351,27 +346,17 @@
 //     marginBottom: 20,
 //     flexDirection: 'row',
 //     alignItems: 'center',
+//     flexWrap: 'wrap',
 //   },
 //   roleLabel: {
 //     color: '#C9D1D9',
 //     marginRight: 10,
 //   },
-//   roleOption: {
-//     marginHorizontal: 10,
-//     color: '#C9D1D9',
-//     padding: 6,
-//     borderRadius: 6,
-//     borderWidth: 1,
-//     borderColor: '#C9D1D9',
-//   },
-//   selectedRole: {
-//     backgroundColor: '#F46D5D',
-//     color: '#fff',
-//   },
 //   radioButtonContainer: {
 //     flexDirection: 'row',
 //     alignItems: 'center',
 //     marginRight: 20,
+//     marginTop: 8,
 //   },
 //   radioCircle: {
 //     height: 20,
@@ -397,6 +382,7 @@
 
 // export default SignUpScreen;
 
+
 import React, { useState } from 'react';
 import {
   View,
@@ -417,7 +403,6 @@ const SignUpScreen = ({ navigation }) => {
   const [lastName, setLastName] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
-  const [address, setAddress] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [securePassword, setSecurePassword] = useState(true);
@@ -471,11 +456,6 @@ const SignUpScreen = ({ navigation }) => {
       return;
     }
 
-    if (!address.trim()) {
-      Alert.alert('Error', 'Address is required.');
-      return;
-    }
-
     if (!validatePassword(password)) {
       Alert.alert(
         'Invalid Password',
@@ -504,7 +484,6 @@ const SignUpScreen = ({ navigation }) => {
         lastName,
         phone,
         email,
-        address,
         password,
         role,
       };
@@ -531,11 +510,13 @@ const SignUpScreen = ({ navigation }) => {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Icon name="arrow-back" size={24} color="#fff" />
-        </TouchableOpacity>
-
-        <Text style={styles.title}>Create Account</Text>
+        {/* Header Row with Back Icon and Sign Up Title */}
+        <View style={styles.headerRow}>
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+            <Icon name="arrow-back" size={24} color="#fff" />
+          </TouchableOpacity>
+          <Text style={styles.title}>Sign Up</Text>
+        </View>
 
         <View style={styles.row}>
           <TextInput
@@ -580,15 +561,6 @@ const SignUpScreen = ({ navigation }) => {
           autoCapitalize="none"
           value={email}
           onChangeText={setEmail}
-        />
-
-        <TextInput
-          style={styles.input}
-          placeholder="Full address"
-          placeholderTextColor="#C9D1D9"
-          value={address}
-          onChangeText={setAddress}
-          multiline
         />
 
         <View style={styles.passwordContainer}>
@@ -667,17 +639,19 @@ const styles = StyleSheet.create({
     backgroundColor: '#0D1117',
     paddingTop: Platform.OS === 'ios' ? 60 : 40,
   },
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 30,
+  },
   backButton: {
-    alignSelf: 'flex-start',
-    marginBottom: 20,
     padding: 8,
+    marginRight: 10,
   },
   title: {
     fontSize: 28,
     color: '#F46D5D',
     fontWeight: 'bold',
-    marginBottom: 30,
-    textAlign: 'center',
   },
   row: {
     flexDirection: 'row',

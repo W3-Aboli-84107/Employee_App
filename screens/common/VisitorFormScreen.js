@@ -9,7 +9,7 @@ import * as ImagePicker from 'expo-image-picker';
 import Checkbox from 'expo-checkbox';
 
 export default function VisitorFormScreen({ navigation, route }) {
-   const { onSave } = route.params || {};
+  const { onSave } = route.params || {};
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
@@ -18,6 +18,7 @@ export default function VisitorFormScreen({ navigation, route }) {
   const [whomToMeet, setWhomToMeet] = useState('');
   const [remark, setRemark] = useState('');
   const [photoUri, setPhotoUri] = useState('');
+  const [vehicleNumber, setVehicleNumber] = useState('');
 
   const [panNumber, setPanNumber] = useState('');
   const [otherIdDetails, setOtherIdDetails] = useState('');
@@ -26,11 +27,9 @@ export default function VisitorFormScreen({ navigation, route }) {
   const [genderModalVisible, setGenderModalVisible] = useState(false);
 
   const [purposeOptions, setPurposeOptions] = useState([
-
     { label: 'Meeting', selected: false },
     { label: 'Delivery', selected: false },
     { label: 'Interview', selected: false },
-
     { id: 1, label: 'IT', value: false },
     { id: 2, label: 'Interview', value: false },
     { id: 3, label: 'HealthCare', value: false },
@@ -38,7 +37,6 @@ export default function VisitorFormScreen({ navigation, route }) {
     { id: 5, label: 'Training', value: false },
     { id: 6, label: 'BD', value: false },
     { id: 7, label: 'Others', value: false },
-
   ]);
   const [purposeModalVisible, setPurposeModalVisible] = useState(false);
 
@@ -109,61 +107,69 @@ export default function VisitorFormScreen({ navigation, route }) {
       address,
       gender,
       visitType: getSelectedPurpose(),
-      inTime: new Date().toLocaleTimeString(),
+      // inTime: new Date().toLocaleTimeString(),
+      inTime: new Date().toISOString(),
       outTime: '',
       purpose: description,
       department: whomToMeet,
       idProof: selectedIdProof,
       aadharNumber: selectedIdProof === 'Aadhar Card' ? aadharNumber : '',
+      panNumber: selectedIdProof === 'Pan Card' ? panNumber : '',
+      otherIdDetails: selectedIdProof === 'Others' ? otherIdDetails : '',
       reference: getSelectedReference(),
-      remark,
+      // remark,
       photoUrl: photoUri,
+      vehicleNumber,
       timestamp: Date.now(),
     };
 
-//     try {
-//       const existingData = await AsyncStorage.getItem('visitors');
-//       const visitors = existingData ? JSON.parse(existingData) : [];
-//       visitors.push(visitorData);
-//       await AsyncStorage.setItem('visitors', JSON.stringify(visitors));
-//       //navigation.navigate('VisitorDetails', { visitor: visitorData });
-//       if (onSave) {
-//   onSave(visitorData); // ✅ Pass visitor data back to AdminDashboard
-// }
-// navigation.goBack(); 
-//     } catch (error) {
-//       console.error('Error saving visitor:', error);
-//     }
-//   };
+    try {
+      const existingData = await AsyncStorage.getItem('visitors');
+      const visitors = existingData ? JSON.parse(existingData) : [];
+      visitors.push(visitorData);
+      await AsyncStorage.setItem('visitors', JSON.stringify(visitors));
 
- try {
-    const existingData = await AsyncStorage.getItem('visitors');
-    const visitors = existingData ? JSON.parse(existingData) : [];
-    visitors.push(visitorData);
-    await AsyncStorage.setItem('visitors', JSON.stringify(visitors));
+      if (onSave) {
+        onSave(visitorData);
+      }
 
-    if (onSave) {
-      onSave(visitorData); // ✅ Send back to dashboard
+      navigation.goBack();
+    } catch (error) {
+      console.error('Error saving visitor:', error);
     }
+  };
 
-    navigation.goBack(); // ✅ Close the form
-  } catch (error) {
-    console.error('Error saving visitor:', error);
-  }
-};
+//   return (
+//     <ScrollView style={styles.container}>
+//      <View style={styles.header}>
+//   <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+//     <Ionicons name="arrow-back" size={24} color="#fff" />
+//   </TouchableOpacity>
+//   <Text style={styles.title}>Visitor's Detail</Text>
+//   <View style={{ width: 24 }} /> {/* to balance the layout visually */}
+// </View>
 
-   return (
-    <ScrollView style={styles.container}>
-      <Text style={styles.title}>Visitor’s Detail</Text>
-
-      {/* {[
+return (
+  <ScrollView style={styles.container}>
+    <View style={styles.header}>
+      <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+        <Ionicons name="arrow-back" size={24} color="#fff" />
+      </TouchableOpacity>
+      <Text style={styles.title}>Visitor's Detail</Text>
+      <View style={{ width: 24 }} />
+    </View>
+      {[
         { icon: 'person', placeholder: 'Visitor Name', value: name, setter: setName },
         { icon: 'call', placeholder: 'Phone number', value: phone, setter: setPhone, keyboardType: 'phone-pad', maxLength: 10 },
-        { icon: 'email-outline', placeholder: 'Email', value: email,setter: (text) => setEmail(text.toLowerCase()), keyboardType: 'email-address' },
+        { icon: 'email-outline', placeholder: 'Email', value: email, setter: (text) => setEmail(text.toLowerCase()), keyboardType: 'email-address' },
         { icon: 'location-outline', placeholder: 'Address', value: address, setter: setAddress },
       ].map((field, i) => (
         <View key={i} style={styles.inputBox}>
-          <Ionicons name={field.icon} size={20} color="#E74C3C" style={styles.icon} />
+          {field.icon === 'email-outline' ? (
+            <MaterialCommunityIcons name={field.icon} size={20} color="#E74C3C" style={styles.icon} />
+          ) : (
+            <Ionicons name={field.icon} size={20} color="#E74C3C" style={styles.icon} />
+          )}
           <TextInput
             placeholder={field.placeholder}
             placeholderTextColor="#aaa"
@@ -174,32 +180,20 @@ export default function VisitorFormScreen({ navigation, route }) {
             maxLength={field.maxLength}
           />
         </View>
-      ))} */}
+      ))}
 
-      {[
-  { icon: 'person', placeholder: 'Visitor Name', value: name, setter: setName },
-  { icon: 'call', placeholder: 'Phone number', value: phone, setter: setPhone, keyboardType: 'phone-pad', maxLength: 10 },
-  { icon: 'email-outline', placeholder: 'Email', value: email, setter: (text) => setEmail(text.toLowerCase()), keyboardType: 'email-address' },
-  { icon: 'location-outline', placeholder: 'Address', value: address, setter: setAddress },
-].map((field, i) => (
-  <View key={i} style={styles.inputBox}>
-    {field.icon === 'email-outline' ? (
-      <MaterialCommunityIcons name={field.icon} size={20} color="#E74C3C" style={styles.icon} />
-    ) : (
-      <Ionicons name={field.icon} size={20} color="#E74C3C" style={styles.icon} />
-    )}
-    <TextInput
-      placeholder={field.placeholder}
-      placeholderTextColor="#aaa"
-      style={styles.input}
-      value={field.value}
-      onChangeText={field.setter}
-      keyboardType={field.keyboardType || 'default'}
-      maxLength={field.maxLength}
-    />
-  </View>
-))}
-
+      {/* Vehicle Number (optional) */}
+      <View style={styles.inputBox}>
+        <MaterialCommunityIcons name="car" size={20} color="#E74C3C" style={styles.icon} />
+        <TextInput
+          placeholder="Vehicle Number (optional)"
+          placeholderTextColor="#aaa"
+          style={styles.input}
+          value={vehicleNumber}
+          onChangeText={setVehicleNumber}
+          autoCapitalize="characters"
+        />
+      </View>
 
       {/* Gender */}
       <TouchableOpacity style={styles.inputBox} onPress={() => setGenderModalVisible(true)}>
@@ -209,22 +203,28 @@ export default function VisitorFormScreen({ navigation, route }) {
 
       {/* Purpose */}
       <TouchableOpacity style={styles.inputBox} onPress={() => setPurposeModalVisible(true)}>
-        <Ionicons name="calendar" size={20} color="#E74C3C" style={styles.icon} />
-        <Text style={[styles.input, { paddingTop: 12 }]}>{getSelectedPurpose() || 'Select Purpose'}</Text>
+        <Ionicons name="calendar" 
+        size={20}
+         color="#E74C3C" 
+         style={styles.icon} />
+        <Text style={[styles.input, { paddingTop: 12 }]}>
+          {getSelectedPurpose() || 'Select Purpose'}
+          </Text>
       </TouchableOpacity>
 
       {/* Description */}
-      <View style={styles.textAreaBox}>
-        <Ionicons name="document-text-outline" size={20} color="#E74C3C" style={styles.icon} />
-        <TextInput
-          placeholder="Description"
-          placeholderTextColor="#aaa"
-          style={styles.textArea}
-          multiline
-          value={description}
-          onChangeText={setDescription}
-        />
-      </View>
+      <View style={styles.inputBox}>
+  <Ionicons name="document-text-outline" size={20} color="#E74C3C" style={styles.icon} />
+  <TextInput
+    placeholder="Description"
+    placeholderTextColor="#aaa"
+    style={styles.input}
+    value={description}
+    onChangeText={setDescription}
+  />
+</View>
+
+      
 
       {/* Whom to meet */}
       <View style={styles.inputBox}>
@@ -238,54 +238,53 @@ export default function VisitorFormScreen({ navigation, route }) {
         <Text style={[styles.input, { paddingTop: 12 }]}>
           {selectedIdProof || 'Select ID Proof'}
         </Text>
-      </TouchableOpacity> 
+      </TouchableOpacity>
 
+      {/* Aadhar Number */}
+      {selectedIdProof === 'Aadhar Card' && (
+        <View style={styles.inputBox}>
+          <MaterialCommunityIcons name="card-bulleted-outline" size={20} color="#E74C3C" style={styles.icon} />
+          <TextInput
+            placeholder="Enter your Aadhar number"
+            placeholderTextColor="#aaa"
+            style={styles.input}
+            value={aadharNumber}
+            onChangeText={setAadharNumber}
+            keyboardType="numeric"
+            maxLength={12}
+          />
+        </View>
+      )}
 
-           {/* Aadhar Number */}
-           {selectedIdProof === 'Aadhar Card' && (
-              <View style={styles.inputBox}>
-                <MaterialCommunityIcons name="card-bulleted-outline" size={20} color="#E74C3C" style={styles.icon} />
-                <TextInput
-                  placeholder="Enter your Aadhar number"
-                  placeholderTextColor="#aaa"
-                  style={styles.input}
-                  value={aadharNumber}
-                  onChangeText={setAadharNumber}
-                  keyboardType="numeric"
-                  maxLength={12}
-                />
-              </View>
-            )}
-         
+      {selectedIdProof === 'Pan Card' && (
+        <View style={styles.inputBox}>
+          <MaterialCommunityIcons name="card-text-outline" size={20} color="#E74C3C" style={styles.icon} />
+          <TextInput
+            placeholder="Enter your PAN number"
+            placeholderTextColor="#aaa"
+            style={styles.input}
+            value={panNumber}
+            onChangeText={(text) => setPanNumber(text.toUpperCase())}
+            autoCapitalize="characters"
+            maxLength={10}
+          />
+        </View>
+      )}
 
-          {selectedIdProof === 'Pan Card' && (
-              <View style={styles.inputBox}>
-                <MaterialCommunityIcons name="card-text-outline" size={20} color="#E74C3C" style={styles.icon} />
-                <TextInput
-                  placeholder="Enter your PAN number"
-                  placeholderTextColor="#aaa"
-                  style={styles.input}
-                  value={panNumber}
-                  onChangeText={(text) => setPanNumber(text.toUpperCase())}
-                  autoCapitalize="characters"
-                  maxLength={10}
-                />
-              </View>
-            )}
+      {selectedIdProof === 'Others' && (
+        <View style={styles.inputBox}>
+          <MaterialCommunityIcons name="card-text-outline" size={20} color="#E74C3C" style={styles.icon} />
+          <TextInput
+            placeholder="Enter ID details"
+            placeholderTextColor="#aaa"
+            style={styles.input}
+            value={otherIdDetails}
+            onChangeText={setOtherIdDetails}
+          />
+        </View>
+      )}
 
-        
-          {selectedIdProof === 'Others' && (
-              <View style={styles.inputBox}>
-                <MaterialCommunityIcons name="card-text-outline" size={20} color="#E74C3C" style={styles.icon} />
-                <TextInput
-                  placeholder="Enter ID details"
-                  placeholderTextColor="#aaa"
-                  style={styles.input}
-                  value={otherIdDetails}
-                  onChangeText={setOtherIdDetails}
-                />
-              </View>
-)}
+      
 
       {/* Reference */}
       <TouchableOpacity style={styles.inputBox} onPress={() => setReferenceModalVisible(true)}>
@@ -302,10 +301,10 @@ export default function VisitorFormScreen({ navigation, route }) {
       </View>
 
       {/* Remark */}
-      <View style={styles.textAreaBox}>
+      {/* <View style={styles.textAreaBox}>
         <MaterialCommunityIcons name="comment-outline" size={20} color="#E74C3C" style={styles.icon} />
         <TextInput placeholder="Remark (optional)" placeholderTextColor="#aaa" style={styles.textArea} multiline value={remark} onChangeText={setRemark} />
-      </View>
+      </View> */}
 
       {/* Action buttons */}
       <View style={styles.actionRow}>
@@ -328,9 +327,6 @@ export default function VisitorFormScreen({ navigation, route }) {
                 <Text style={styles.modalText}>{option}</Text>
               </TouchableOpacity>
             ))}
-            {/* <TouchableOpacity onPress={() => setGenderModalVisible(false)} style={styles.closeButton}>
-              <Text style={styles.photoButtonText}>Ok</Text>
-            </TouchableOpacity> */}
           </View>
         </View>
       </Modal>
@@ -380,231 +376,186 @@ export default function VisitorFormScreen({ navigation, route }) {
       </Modal>
 
       {/* ID Proof Modal */}
-<Modal visible={idProofModalVisible} transparent animationType="fade">
-   <View style={styles.modalOverlay}>
-    <View style={styles.modalBox}>
-      <Text style={styles.modalTitle}>Select ID Proof</Text>
+      <Modal visible={idProofModalVisible} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalBox}>
+            <Text style={styles.modalTitle}>Select ID Proof</Text>
+            {['Pan Card', 'Aadhar Card', 'Others'].map((option) => (
+              <TouchableOpacity
+                key={option}
+                style={styles.radioItem}
+                onPress={() => {
+                  setSelectedIdProof(option);
+                }}
+              >
+                <Ionicons
+                  name={selectedIdProof === option ? 'radio-button-on' : 'radio-button-off'}
+                  size={20}
+                  color="#E74C3C"
+                />
+                <Text style={styles.modalText}>{option}</Text>
+              </TouchableOpacity>
+            ))}
 
-      {/* Selection Options */}
-      {['Pan Card', 'Aadhar Card', 'Others'].map((option) => (
-        <TouchableOpacity
-          key={option}
-          style={styles.radioItem}
-          onPress={() => {
-            setSelectedIdProof(option);
-          }}
-        >
-          <Ionicons
-            name={selectedIdProof === option ? 'radio-button-on' : 'radio-button-off'}
-            size={20}
-            color="#E74C3C"
-          />
-          <Text style={styles.modalText}>{option}</Text>
-        </TouchableOpacity>
-      ))}
-
-      {/* Conditionally Show Input Based on Selection */}
-      {selectedIdProof === 'Aadhar Card' && (
-        <View style={styles.inputBox}>
-          <MaterialCommunityIcons
-            name="card-account-details-outline"
-            size={20}
-            color="#E74C3C"
-            style={styles.icon}
-          />
-          <TextInput
-            placeholder="Enter Aadhar number"
-            placeholderTextColor="#aaa"
-            style={styles.input}
-            value={aadharNumber}
-            onChangeText={setAadharNumber}
-            keyboardType="numeric"
-            maxLength={12}
-          />
+            <TouchableOpacity
+              onPress={() => setIdProofModalVisible(false)}
+              style={styles.closeButton}
+            >
+              <Text style={styles.photoButtonText}>OK</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-      )}
-
-      {selectedIdProof === 'Pan Card' && (
-        <View style={styles.inputBox}>
-          <MaterialCommunityIcons
-            name="card-text-outline"
-            size={20}
-            color="#E74C3C"
-            style={styles.icon}
-          />
-          <TextInput
-            placeholder="Enter PAN number"
-            placeholderTextColor="#aaa"
-            style={styles.input}
-            value={panNumber}
-            onChangeText={(text) => setPanNumber(text.toUpperCase())}
-            autoCapitalize="characters"
-            maxLength={10}
-          />
-        </View>
-      )}
-
-      {selectedIdProof === 'Others' && (
-        <View style={styles.inputBox}>
-          <MaterialCommunityIcons
-            name="card-text-outline"
-            size={20}
-            color="#E74C3C"
-            style={styles.icon}
-          />
-          <TextInput
-            placeholder="Enter ID details"
-            placeholderTextColor="#aaa"
-            style={styles.input}
-            value={otherIdDetails}
-            onChangeText={setOtherIdDetails}
-          />
-        </View>
-      )}
-
-      {/* OK Button */}
-      <TouchableOpacity
-        onPress={() => setIdProofModalVisible(false)}
-        style={styles.closeButton}
-      >
-        <Text style={styles.photoButtonText}>OK</Text>
-      </TouchableOpacity>
-    </View>
-  </View>
-</Modal>
-
+      </Modal>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0D0D1A', padding: 20 },
-  title: { fontSize: 18, color: '#fff', fontWeight: 'bold', marginBottom: 16 },
+  container: {
+    flex: 1,
+    backgroundColor: '#0D0D1A',
+    padding: 20
+  },
+  
+  header: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  marginTop: 2,
+  marginBottom: 20,
+},
+
+backButton: {
+  padding: 4,
+},
+
+title: {
+  fontSize: 20,
+  color: '#fff',
+  fontWeight: 'bold',
+  textAlign: 'center',
+  marginBottom: 5,
+  marginTop: 30,
+},
+
+
+ 
 
   inputBox: {
-    flexDirection: 'row', backgroundColor: '#1E1E2C', borderRadius: 8,
-    padding: 10, alignItems: 'center', marginBottom: 10,
+    flexDirection: 'row',
+    backgroundColor: '#303042ff',
+    borderRadius: 8,
+    padding: 10,
+    alignItems: 'center',
+    marginBottom: 10,
   },
 
-  input: { color: '#fff', marginLeft: 10, flex: 1 },
-  icon: { marginLeft: 4 },
-
-  textAreaBox: {
-    flexDirection: 'row', backgroundColor: '#1E1E2C', borderRadius: 8,
-    padding: 10, alignItems: 'flex-start', marginBottom: 10,
-  },
-
-  textArea: 
-  { 
+  input: {
     color: '#fff',
-     marginLeft: 10, 
-     flex: 1, 
-     height: 80, 
-     textAlignVertical: 'top' 
-    },
-
-  photoSection:
-   {
-     alignItems: 'center', 
-    marginVertical: 20 
+    marginLeft: 10,
+    flex: 1
   },
 
-  image:
-   { 
+  // icon: { marginLeft: 4 },
+  // textAreaBox: {
+  //   flexDirection: 'row',
+  //   backgroundColor: '#1E1E2C',
+  //   borderRadius: 8,
+  //   padding: 10,
+  //   alignItems: 'flex-start',
+  //   marginBottom: 10,
+  // },
+
+  // textArea: {
+  //   color: '#fff',
+  //   marginLeft: 10,
+  //   flex: 1,
+  //   height: 80,
+  //   textAlignVertical: 'top'
+  // },
+
+  photoSection: {
+    alignItems: 'center',
+    marginVertical: 20
+  },
+
+  image: {
     width: 100,
-     height: 100, 
-    borderRadius: 8, 
-    marginBottom: 10 
-
-   },
-
-  photoPlaceholderText:
-   { 
+    height: 100,
+    borderRadius: 8,
+    marginBottom: 10
+  },
+  photoPlaceholderText: {
     color: '#aaa',
-     marginBottom: 10
-    },
-
-  photoButton: 
-    { 
+    marginBottom: 10
+  },
+  photoButton: {
     backgroundColor: '#E74C3C',
-     padding: 10, 
-     borderRadius: 6 
-
-    },
-
-  photoButtonText:
-   { 
-    color: '#fff', 
-    fontWeight: 'bold' 
+    padding: 10,
+    borderRadius: 6
   },
-
-  actionRow:
-   { flexDirection: 'row',
-     justifyContent: 'space-between',
-      marginTop: 30
-     },
-
-  cancelButton:
-   { 
-    backgroundColor: '#1E1E2C', 
-    paddingVertical: 14, 
-    paddingHorizontal: 28, 
-    borderRadius: 8 
+  photoButtonText: {
+    color: '#fff',
+    fontWeight: 'bold'
   },
-
-  saveButton:
-   { 
-    backgroundColor: '#E74C3C', 
+  actionRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingBottom: 40
+  },
+  cancelButton: {
+    backgroundColor: '#777791ff',
+    paddingVertical: 14,
+    paddingHorizontal: 28,
+    borderRadius: 8,
+  },
+  saveButton: {
+    backgroundColor: '#E74C3C',
     paddingVertical: 10,
-     paddingHorizontal: 30,
-      borderRadius: 8 
-    },
-
-  actionText: 
-  { color: '#fff', 
-    fontWeight: 'bold' },
-
-  modalOverlay: 
-  { flex: 1, 
-    backgroundColor: 'rgba(0,0,0,0.6)', 
-    justifyContent: 'center', 
-    alignItems: 'center' },
-
-  modalBox:
-   { 
+    paddingHorizontal: 30,
+    borderRadius: 8
+  },
+  actionText: {
+    color: '#fff',
+    fontWeight: 'bold'
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  modalBox: {
     backgroundColor: '#fff',
-     padding: 20,
-      borderRadius: 10,
-      width: '80%' },
-
-  modalTitle:
-   { fontSize: 18, 
+    padding: 20,
+    borderRadius: 10,
+    width: '80%'
+  },
+  modalTitle: {
+    fontSize: 18,
     fontWeight: 'bold',
-     marginBottom: 10,
-      color: '#333' },
-
-  checkboxItem:
-   { flexDirection: 'row',
-     alignItems: 'center', 
-     marginBottom: 10 },
-
-  radioItem:
-   { flexDirection: 'row',
-     alignItems: 'center', 
-     marginVertical: 6 },
-
-  modalText:
-   { fontSize: 16, 
-    marginLeft: 10 },
-
-  closeButton:
-   { backgroundColor: '#E74C3C', 
-    padding: 10, 
+    marginBottom: 10,
+    color: '#333'
+  },
+  checkboxItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10
+  },
+  radioItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 6
+  },
+  modalText: {
+    fontSize: 16,
+    marginLeft: 10
+  },
+  closeButton: {
+    backgroundColor: '#E74C3C',
+    padding: 10,
     marginTop: 10,
-     borderRadius: 6, 
-     alignItems: 'center' },
-
+    borderRadius: 6,
+    alignItems: 'center'
+  },
 });
-
-
-
