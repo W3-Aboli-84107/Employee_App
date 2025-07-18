@@ -7,6 +7,7 @@ import { Ionicons, MaterialCommunityIcons, FontAwesome } from '@expo/vector-icon
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
 import Checkbox from 'expo-checkbox';
+import { KeyboardAvoidingView, Platform } from 'react-native';
 
 export default function VisitorFormScreen({ navigation, route }) {
   const { onSave } = route.params || {};
@@ -150,7 +151,32 @@ export default function VisitorFormScreen({ navigation, route }) {
 // </View>
 
 return (
-  <ScrollView style={styles.container}>
+
+
+//   <KeyboardAvoidingView
+//   behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+//   style={{ flex: 1, backgroundColor: '#0D0D1A' }}
+//   keyboardVerticalOffset={Platform.OS === 'ios' ? 70 : 0}
+// >
+
+  
+// <ScrollView
+//   style={styles.container}
+//   contentContainerStyle={styles.scrollContent}
+//   keyboardShouldPersistTaps="handled"
+// >
+<KeyboardAvoidingView
+  behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+  style={{ flex: 1, backgroundColor: '#0D0D1A' }}
+  keyboardVerticalOffset={Platform.OS === 'ios' ? 70 : 0}
+>
+  <ScrollView
+    style={{ flex: 1 }}
+    contentContainerStyle={styles.scrollContainer}
+    keyboardShouldPersistTaps="handled"
+  >
+
+
     <View style={styles.header}>
       <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
         <Ionicons name="arrow-back" size={24} color="#fff" />
@@ -181,6 +207,8 @@ return (
           />
         </View>
       ))}
+
+      
 
       {/* Vehicle Number (optional) */}
       <View style={styles.inputBox}>
@@ -406,7 +434,9 @@ return (
           </View>
         </View>
       </Modal>
+      
     </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -437,9 +467,6 @@ title: {
   marginBottom: 5,
   marginTop: 30,
 },
-
-
- 
 
   inputBox: {
     flexDirection: 'row',
@@ -498,11 +525,18 @@ title: {
     color: '#fff',
     fontWeight: 'bold'
   },
+  // actionRow: {
+  //   flexDirection: 'row',
+  //   justifyContent: 'space-between',
+  //  // paddingBottom: 40
+  // },
+
   actionRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingBottom: 40
-  },
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  marginTop: 20,
+},
+
   cancelButton: {
     backgroundColor: '#777791ff',
     paddingVertical: 14,
@@ -537,6 +571,12 @@ title: {
     marginBottom: 10,
     color: '#333'
   },
+
+  scrollContent: {
+  paddingBottom: 20,
+  flexGrow: 1,
+},
+
   checkboxItem: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -558,4 +598,11 @@ title: {
     borderRadius: 6,
     alignItems: 'center'
   },
+  scrollContainer: {
+  flexGrow: 1,
+  justifyContent: 'space-between',
+  padding: 20,
+  backgroundColor: '#0D0D1A',
+}
+,
 });

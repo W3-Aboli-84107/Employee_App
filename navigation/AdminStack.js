@@ -9,12 +9,11 @@ import signupscreen from '../screens/auth/signupscreen';
 import AdminStack from './AdminStack';
 import SuperAdminStack from './SuperAdminStack';
 import AdminDashboardScreen from '../screens/Admin/AdminDashboard';
-import SuperAdminDashboardScreen from '../screens/SuperAdmin/SuperAdminDashboard';
+import SuperAdminDashboardScreen from '../screens/SuperAdmin/SuperAdminDashboardScreen';
 import DashboardScreen from '../screens/common/DashboardScreen';
 import VisitorFormScreen from '../screens/common/VisitorFormScreen';
 import VisitorDetailsScreen from '../screens/common/VisitorDetailsScreen';
 import ProfileScreen from '../screens/Admin/ProfileScreen';
-
 
 
 const Stack = createNativeStackNavigator();

@@ -13,6 +13,37 @@ import { useIsFocused } from '@react-navigation/native';
 import colors from '../../constants/colors'; // Make sure this exists and defines a background color
 
 // Group visitors into Today, Yesterday, or specific date
+// const groupVisitorsByDate = (visitors) => {
+//   const grouped = {
+//     Today: [],
+//     Yesterday: [],
+//   };
+
+//   const today = new Date();
+//   const yesterday = new Date();
+//   yesterday.setDate(today.getDate() - 1);
+
+//   const isSameDay = (d1, d2) =>
+//     d1.getDate() === d2.getDate() &&
+//     d1.getMonth() === d2.getMonth() &&
+//     d1.getFullYear() === d2.getFullYear();
+
+//   visitors.forEach((visitor) => {
+//     const visitDate = new Date(visitor.checkInTime);
+//     if (isSameDay(visitDate, today)) {
+//       grouped.Today.push(visitor);
+//     } else if (isSameDay(visitDate, yesterday)) {
+//       grouped.Yesterday.push(visitor);
+//     } else {
+//       const label = visitDate.toLocaleDateString('en-GB'); // DD/MM/YYYY
+//       if (!grouped[label]) grouped[label] = [];
+//       grouped[label].push(visitor);
+//     }
+//   });
+
+//   return grouped;
+// };
+
 const groupVisitorsByDate = (visitors) => {
   const grouped = {
     Today: [],
@@ -23,16 +54,20 @@ const groupVisitorsByDate = (visitors) => {
   const yesterday = new Date();
   yesterday.setDate(today.getDate() - 1);
 
-  const isSameDay = (d1, d2) =>
-    d1.getDate() === d2.getDate() &&
-    d1.getMonth() === d2.getMonth() &&
-    d1.getFullYear() === d2.getFullYear();
+  const formatDate = (date) => {
+    return `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}`;
+  };
+
+  const todayKey = formatDate(today);
+  const yesterdayKey = formatDate(yesterday);
 
   visitors.forEach((visitor) => {
     const visitDate = new Date(visitor.checkInTime);
-    if (isSameDay(visitDate, today)) {
+    const visitKey = formatDate(visitDate);
+
+    if (visitKey === todayKey) {
       grouped.Today.push(visitor);
-    } else if (isSameDay(visitDate, yesterday)) {
+    } else if (visitKey === yesterdayKey) {
       grouped.Yesterday.push(visitor);
     } else {
       const label = visitDate.toLocaleDateString('en-GB'); // DD/MM/YYYY
@@ -43,6 +78,8 @@ const groupVisitorsByDate = (visitors) => {
 
   return grouped;
 };
+
+
 
 export default function HistoryScreen({ navigation }) {
   const [searchQuery, setSearchQuery] = useState('');
@@ -197,3 +234,4 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
 });
+
