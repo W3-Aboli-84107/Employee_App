@@ -6,7 +6,9 @@ import SplashScreen from '../screens/common/SplashScreen';
 import welcomeScreens from '../screens/auth/welcomeScreens';
 import loginScreens from '../screens/auth/loginScreens';
 import signupscreen from '../screens/auth/signupscreen';
-import AdminStack from './AdminStack';
+// import AdminStack from './AdminStack';
+import AdminStack from '../navigation/AdminStack'; 
+
 import SuperAdminStack from './SuperAdminStack';
 import AdminDashboardScreen from '../screens/Admin/AdminDashboard';
 import SuperAdminDashboardScreen from '../screens/SuperAdmin/SuperAdminDashboardScreen';
@@ -14,6 +16,7 @@ import DashboardScreen from '../screens/common/DashboardScreen';
 import VisitorFormScreen from '../screens/common/VisitorFormScreen';
 import VisitorDetailsScreen from '../screens/common/VisitorDetailsScreen';
 import ProfileScreen from '../screens/Admin/ProfileScreen';
+import AdminHistoryScreen from '../screens/Admin/AdminHistoryScreen';
 
 
 const Stack = createNativeStackNavigator();
@@ -33,6 +36,7 @@ export default function AppNavigator() {
       <Stack.Screen name="VisitorForm" component={VisitorFormScreen} />
       <Stack.Screen name="VisitorDetails" component={VisitorDetailsScreen} />
       <Stack.Screen name="ProfileScreen" component={ProfileScreen}/>
+      <Stack.Screen name="AdminHistoryScreen" component={AdminHistoryScreen} />
       
     </Stack.Navigator>
   );

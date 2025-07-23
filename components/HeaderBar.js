@@ -3,6 +3,7 @@ import { View, StyleSheet, Text, TextInput, TouchableOpacity, Image } from 'reac
 import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Alert } from 'react-native';
 
 export default function HeaderBar({ onSearch }) {
   const navigation = useNavigation();
@@ -28,6 +29,8 @@ export default function HeaderBar({ onSearch }) {
         }
       };
 
+      
+
       const updateGreeting = () => {
         const hour = new Date().getHours();
         if (hour < 12) setGreeting('Good Morning');
@@ -40,7 +43,44 @@ export default function HeaderBar({ onSearch }) {
     }, [])
   );
 
-  const openHistory = () => navigation.navigate('History');
+  //const openHistory = () => navigation.navigate('AdminHistoryScreen');
+  const openHistory = async () => {
+  try {
+    const userData = await AsyncStorage.getItem('user');
+    if (userData) {
+      const parsed = JSON.parse(userData);
+      const role = parsed.role;
+
+      if (role === 'admin') {
+        navigation.navigate('AdminHistoryScreen');
+      } else if (role === 'superadmin') {
+        navigation.navigate('SuperAdminHistoryScreen');
+      } else {
+        Alert.alert('Error', 'Unknown user role');
+      }
+    } else {
+      Alert.alert('Error', 'User data not found');
+    }
+  } catch (err) {
+    console.error('Failed to read user data:', err);
+    Alert.alert('Error', 'Something went wrong');
+  }
+};
+
+
+  const handleLogout = () => {
+    Alert.alert('Logout', 'Are you sure you want to logout?', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Logout',
+        style: 'destructive',
+        onPress: async () => {
+          await AsyncStorage.clear();
+          navigation.replace('Login');
+        },
+      },
+    ]);
+  };
 
   return (
     <View style={styles.container}>
@@ -55,15 +95,23 @@ export default function HeaderBar({ onSearch }) {
               </View>
             )}
           </TouchableOpacity>
+
           <View style={styles.greetingSection}>
             <Text style={styles.greetingText}>{greeting}</Text>
             <Text style={styles.userName}>{firstName || 'User'}</Text>
           </View>
         </View>
 
-        <TouchableOpacity onPress={openHistory}>
-          <FontAwesome5 name="history" size={24} color="#fff" />
-        </TouchableOpacity>
+        <View style={styles.iconGroup}>
+          <TouchableOpacity onPress={openHistory} style={{ marginRight: 12 }}>
+            <FontAwesome5 name="history" size={24} color="#fff" />
+          </TouchableOpacity>
+
+          {/* <TouchableOpacity onPress={handleLogout}>
+            <Ionicons name="log-out-outline" size={26} color="#fff" />
+          </TouchableOpacity> */}
+
+        </View>
       </View>
 
       <View style={styles.searchBox}>
@@ -75,6 +123,7 @@ export default function HeaderBar({ onSearch }) {
           onChangeText={(text) => onSearch && onSearch(text)}
         />
       </View>
+      
     </View>
   );
 }
@@ -96,6 +145,10 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     marginBottom: 20,
   },
+  profileAndGreeting: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   greetingSection: {
     flexDirection: 'column',
   },
@@ -109,6 +162,23 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     marginTop: 4,
+  },
+  profileImage: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    marginRight: 10,
+    backgroundColor: '#fff',
+  },
+  fallbackImage: {
+    backgroundColor: '#555',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  initialText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 18,
   },
   searchBox: {
     position: 'absolute',
@@ -128,25 +198,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
     flex: 1,
   },
-  profileAndGreeting: {
+  iconGroup: {
     flexDirection: 'row',
     alignItems: 'center',
-  },
-  profileImage: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    marginRight: 10,
-    backgroundColor: '#fff',
-  },
-  fallbackImage: {
-    backgroundColor: '#555',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  initialText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 18,
   },
 });

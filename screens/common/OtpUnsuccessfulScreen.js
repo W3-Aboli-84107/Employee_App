@@ -7,9 +7,11 @@ import {
 } from 'react-native';
 import { Ionicons, Feather } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import {  useRoute } from '@react-navigation/native';
 
 export default function OtpUnsuccessfulScreen() {
     const navigation = useNavigation();
+       const route = useRoute();
 
     const handleTryAgain = () => {
         navigation.replace('OTPScreen', {

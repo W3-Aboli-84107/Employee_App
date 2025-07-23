@@ -10,39 +10,7 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import { useIsFocused } from '@react-navigation/native';
-import colors from '../../constants/colors'; // Make sure this exists and defines a background color
-
-// Group visitors into Today, Yesterday, or specific date
-// const groupVisitorsByDate = (visitors) => {
-//   const grouped = {
-//     Today: [],
-//     Yesterday: [],
-//   };
-
-//   const today = new Date();
-//   const yesterday = new Date();
-//   yesterday.setDate(today.getDate() - 1);
-
-//   const isSameDay = (d1, d2) =>
-//     d1.getDate() === d2.getDate() &&
-//     d1.getMonth() === d2.getMonth() &&
-//     d1.getFullYear() === d2.getFullYear();
-
-//   visitors.forEach((visitor) => {
-//     const visitDate = new Date(visitor.checkInTime);
-//     if (isSameDay(visitDate, today)) {
-//       grouped.Today.push(visitor);
-//     } else if (isSameDay(visitDate, yesterday)) {
-//       grouped.Yesterday.push(visitor);
-//     } else {
-//       const label = visitDate.toLocaleDateString('en-GB'); // DD/MM/YYYY
-//       if (!grouped[label]) grouped[label] = [];
-//       grouped[label].push(visitor);
-//     }
-//   });
-
-//   return grouped;
-// };
+import colors from '../../constants/colors'; // fallback to '#0D0D1A' if undefined
 
 const groupVisitorsByDate = (visitors) => {
   const grouped = {
@@ -54,34 +22,29 @@ const groupVisitorsByDate = (visitors) => {
   const yesterday = new Date();
   yesterday.setDate(today.getDate() - 1);
 
-  const formatDate = (date) => {
-    return `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}`;
-  };
+  const formatKey = (date) => date.toISOString().split('T')[0]; // YYYY-MM-DD
 
-  const todayKey = formatDate(today);
-  const yesterdayKey = formatDate(yesterday);
+  const todayKey = formatKey(today);
+  const yesterdayKey = formatKey(yesterday);
 
   visitors.forEach((visitor) => {
     const visitDate = new Date(visitor.checkInTime);
-    const visitKey = formatDate(visitDate);
+    const visitKey = formatKey(visitDate);
 
     if (visitKey === todayKey) {
       grouped.Today.push(visitor);
     } else if (visitKey === yesterdayKey) {
       grouped.Yesterday.push(visitor);
     } else {
-      const label = visitDate.toLocaleDateString('en-GB'); // DD/MM/YYYY
-      if (!grouped[label]) grouped[label] = [];
-      grouped[label].push(visitor);
+      if (!grouped[visitKey]) grouped[visitKey] = [];
+      grouped[visitKey].push(visitor);
     }
   });
 
   return grouped;
 };
 
-
-
-export default function HistoryScreen({ navigation }) {
+export default function AdminHistoryScreen({ navigation }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [groupedVisitors, setGroupedVisitors] = useState({});
   const isFocused = useIsFocused();
@@ -138,18 +101,21 @@ export default function HistoryScreen({ navigation }) {
               if (order[a[0]] !== undefined || order[b[0]] !== undefined) {
                 return (order[a[0]] ?? 99) - (order[b[0]] ?? 99);
               }
-              const [da, ma, ya] = a[0].split('/');
-              const [db, mb, yb] = b[0].split('/');
-              return new Date(yb, mb - 1, db) - new Date(ya, ma - 1, da);
+              return new Date(b[0]) - new Date(a[0]); // Newest first
             })
-            .filter(([_, visitors]) => visitors.length > 0) // ✅ Skip empty sections
             .map(([date, visitors]) => (
               <View key={date} style={styles.section}>
-                <Text style={styles.dateLabel}>{date}</Text>
+                <Text style={styles.dateLabel}>
+                  {date === 'Today' || date === 'Yesterday'
+                    ? date
+                    : new Date(date).toLocaleDateString('en-GB')}
+                </Text>
                 {visitors.map((visitor, index) => (
                   <View key={index} style={styles.visitorCard}>
                     <Text style={styles.visitorName}>{visitor.name || 'No Name'}</Text>
-                    <Text style={styles.visitorPurpose}>{visitor.purpose || 'No Purpose'}</Text>
+                    <Text style={styles.visitorPurpose}>
+                      {visitor.purpose || ''}
+                    </Text>
                   </View>
                 ))}
               </View>
@@ -170,23 +136,23 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: 20,
   },
   title: {
     color: '#fff',
     fontSize: 22,
     fontWeight: 'bold',
     marginLeft: 12,
-    marginTop: 20,
   },
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#454559',
+    borderWidth: 1,
+    borderColor: '#444',
     borderRadius: 10,
     paddingHorizontal: 12,
     marginBottom: 20,
-    height: 40,
+    height: 42,
   },
   searchIcon: {
     marginRight: 8,
@@ -203,9 +169,9 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   dateLabel: {
-    color: '#ccc',
-    fontSize: 14,
-    fontWeight: 'bold',
+    color: '#aaa',
+    fontSize: 13,
+    fontWeight: '600',
     marginBottom: 10,
   },
   visitorCard: {
@@ -215,12 +181,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 8,
+    marginBottom: 10,
   },
   visitorName: {
     color: '#fff',
     fontSize: 14,
-    fontWeight: 'bold',
+    fontWeight: '600',
   },
   visitorPurpose: {
     color: '#aaa',
