@@ -1,59 +1,4 @@
-// import React from 'react';
-// import { View, Text, StyleSheet, ScrollView } from 'react-native';
-// import { useRoute } from '@react-navigation/native';
-
-// const DownloadScreen = () => {
-//   const route = useRoute();
-//   const { year, month, category, fromDate, toDate } = route.params;
-
-//   return (
-//     <ScrollView contentContainerStyle={styles.container}>
-//       <Text style={styles.heading}>Download List</Text>
-
-//       <View style={styles.card}>
-//         <Text style={styles.label}>Year: <Text style={styles.value}>{year}</Text></Text>
-//         <Text style={styles.label}>Month: <Text style={styles.value}>{month}</Text></Text>
-//         <Text style={styles.label}>Category: <Text style={styles.value}>{category}</Text></Text>
-//         <Text style={styles.label}>From Date: <Text style={styles.value}>{fromDate}</Text></Text>
-//         <Text style={styles.label}>To Date: <Text style={styles.value}>{toDate}</Text></Text>
-//       </View>
-
-//       {/* You can add FlatList here to display data based on filters */}
-
-//     </ScrollView>
-//   );
-// };
-
-// export default DownloadScreen;
-
-// const styles = StyleSheet.create({
-//   container: {
-//     padding: 20,
-//     backgroundColor: '#2a2939ff',
-//     flexGrow: 1,
-//   },
-//   heading: {
-//     fontSize: 20,
-//     fontWeight: 'bold',
-//     marginBottom: 20,
-//   },
-//   card: {
-//     backgroundColor: '#fff',
-//     padding: 15,
-//     borderRadius: 10,
-//     elevation: 2,
-//   },
-//   label: {
-//     fontSize: 16,
-//     marginBottom: 10,
-//   },
-//   value: {
-//     fontWeight: 'bold',
-//   },
-// });
-
-
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -62,10 +7,9 @@ import {
   TouchableOpacity,
   SafeAreaView,
 } from 'react-native';
-import { SearchBar, Icon } from 'react-native-elements'; // Assuming react-native-elements for SearchBar and Icon
-import { Ionicons } from '@expo/vector-icons'; // Or any other icon library you prefer
+import { SearchBar, Icon } from 'react-native-elements';
+import { Ionicons } from '@expo/vector-icons';
 
-// Dummy data for the list items
 const DATA = [
   { id: '1', name: 'Suresh Khanna', type: 'Interview' },
   { id: '2', name: 'Preeti Ahuja', type: 'Health care' },
@@ -79,9 +23,14 @@ const DATA = [
 
 const DownloadScreen = ({ navigation, route }) => {
   const [search, setSearch] = React.useState('');
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
 
-  // Accessing parameters passed from the FilterScreen (if any)
-  // const { filterType, year, month, category, fromDate, toDate } = route.params || {};
+  useEffect(() => {
+    if (route.params?.downloadSuccess) {
+      setShowSuccessMessage(true);
+      setTimeout(() => setShowSuccessMessage(false), 2500);
+    }
+  }, [route.params]);
 
   const updateSearch = (text) => {
     setSearch(text);
@@ -97,7 +46,6 @@ const DownloadScreen = ({ navigation, route }) => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        {/* Back button to navigate back, potentially to FilterScreen */}
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
         </TouchableOpacity>
@@ -116,10 +64,9 @@ const DownloadScreen = ({ navigation, route }) => {
           searchIcon={{ color: '#FFFFFF' }}
           clearIcon={{ color: '#FFFFFF' }}
         />
-        {/* Filter button - assuming this navigates to the FilterScreen */}
         <TouchableOpacity
           style={styles.filterButton}
-          onPress={() => navigation.navigate('FilterScreen')} // Navigate to FilterScreen
+          onPress={() => navigation.navigate('FilterScreen')}
         >
           <Icon name="filter-list" type="material" color="#FFFFFF" size={24} />
         </TouchableOpacity>
@@ -128,15 +75,31 @@ const DownloadScreen = ({ navigation, route }) => {
       <Text style={styles.yearText}>2024</Text>
 
       <FlatList
-        data={DATA} // In a real app, this data would be filtered based on route.params
+        data={DATA}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.listContentContainer}
       />
 
-      <TouchableOpacity style={styles.downloadButton}>
-        <Text style={styles.downloadButtonText}>Download</Text>
-      </TouchableOpacity>
+    <TouchableOpacity
+  style={styles.downloadButton}
+  onPress={() => {
+    setShowSuccessMessage(true);
+    setTimeout(() => setShowSuccessMessage(false), 2500);
+  }}
+>
+  <Text style={styles.downloadButtonText}>Download</Text>
+</TouchableOpacity>
+
+
+      {/* ✅ SUCCESS MESSAGE */}
+      {showSuccessMessage && (
+        <View style={styles.toastMessage}>
+          <Text style={styles.toastText}>
+            You have successfully downloaded the records
+          </Text>
+        </View>
+      )}
     </SafeAreaView>
   );
 };
@@ -144,7 +107,8 @@ const DownloadScreen = ({ navigation, route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1E1E1E', // Dark background
+    backgroundColor: '#1E1E1E',
+    marginTop:20,
   },
   header: {
     flexDirection: 'row',
@@ -157,6 +121,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     marginLeft: 10,
+    marginTop:20,
   },
   searchContainer: {
     flexDirection: 'row',
@@ -166,7 +131,7 @@ const styles = StyleSheet.create({
   },
   searchBarContainer: {
     flex: 1,
-    backgroundColor: '#333333', // Darker background for search bar
+    backgroundColor: '#333333',
     borderBottomColor: 'transparent',
     borderTopColor: 'transparent',
     borderRadius: 8,
@@ -213,16 +178,33 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
   },
   downloadButton: {
-    backgroundColor: '#E74C3C', 
+    backgroundColor: '#E74C3C',
     padding: 15,
     margin: 16,
     borderRadius: 8,
     alignItems: 'center',
   },
   downloadButtonText: {
-    color: '#FFFFFF',
+    color: '#fff6f6ff',
     fontSize: 18,
     fontWeight: 'bold',
+    
+  },
+  toastMessage: {
+    position: 'absolute',
+    bottom: 100,
+    left: 20,
+    right: 20,
+    backgroundColor: '#f5ededff',
+    padding: 14,
+    borderRadius: 8,
+    alignItems: 'center',
+    zIndex: 999,
+  },
+  toastText: {
+    color: '#090707ff',
+    fontSize: 15,
+    fontWeight: '600',
   },
 });
 

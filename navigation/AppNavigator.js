@@ -10,7 +10,6 @@ import AdminDashboardScreen from '../screens/Admin/AdminDashboard';
 import SuperAdminDashboardScreen from '../screens/SuperAdmin/SuperAdminDashboardScreen';
 import DashboardScreen from '../screens/common/DashboardScreen';
 import VisitorFormScreen from '../screens/common/VisitorFormScreen';
-// import HistoryScreen from '../screens/common/HistoryScreen';
 import ForgotPasswordScreen from '../screens/common/ForgotPasswordScreen';
 import OTPScreen from '../screens/common/OTPScreen';
 import OtpSuccessfulScreen from '../screens/common/OtpSuccessfulScreen';

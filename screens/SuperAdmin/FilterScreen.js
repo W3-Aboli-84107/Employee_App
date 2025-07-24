@@ -2,745 +2,1164 @@
 // import {
 //   View,
 //   Text,
-//   StyleSheet,
 //   TouchableOpacity,
-//   Platform,
-//   ScrollView,
+//   StyleSheet,
+//   Modal,
+//   FlatList,
+//   Platform, // Import Platform to handle OS-specific date picker behavior
+//   ScrollView, // Keep ScrollView for the main content
 // } from 'react-native';
-// import DateTimePicker from '@react-native-community/datetimepicker';
-// import { Ionicons } from '@expo/vector-icons';
+// import DateTimePicker from '@react-native-community/datetimepicker'; // Import the date picker
 
-// export default function FilterScreen({ navigation }) {
-//   const [selectedFilter, setSelectedFilter] = useState(null);
-//   const [selectedYear, setSelectedYear] = useState(null);
-//   const [selectedMonth, setSelectedMonth] = useState(null);
-//   const [selectedCategory, setSelectedCategory] = useState(null);
 
-//   const [fromDate, setFromDate] = useState(new Date());
-//   const [toDate, setToDate] = useState(new Date());
-//   const [showFromPicker, setShowFromPicker] = useState(false);
-//   const [showToPicker, setShowToPicker] = useState(false);
+// const CheckBox = ({ value, onValueChange }) => (
+//   <TouchableOpacity
+//     onPress={onValueChange}
+//     style={{
+//       width: 22,
+//       height: 22,
+//       borderRadius: 4,
+//       borderWidth: 2,
+//       borderColor: '#FFF',
+//       backgroundColor: value ? '#9566daff' : 'transparent', // Using your color
+//       justifyContent: 'center',
+//       alignItems: 'center',
+//     }}
+//   >
+//     {value && <Text style={{ color: '#FFF', fontSize: 14 }}>✓</Text>}
+//   </TouchableOpacity>
+// );
 
-//   const years = [2022, 2023, 2024, 2025];
-//   const months = [
-//     'January', 'February', 'March', 'April',
-//     'May', 'June', 'July', 'August',
-//     'September', 'October', 'November', 'December'
-//   ];
-//   const categories = ['Visitor', 'Employee', 'Admin'];
+// const filterOptions = {
+//   years: ['2025', '2024', '2023', '2022', '2021', '2020', '2019', '2018', '2017', '2016', '2015', '2014'],
+//   months: ['January 25', 'February 25', 'March 25', 'April 25', 'May 25', 'June 25', 'July 25', 'August 25', 'September 25', 'October 25', 'November 25', 'December 25'],
+//   categories: ['IT', 'Interview', 'Healthcare', 'Digital marketing', 'Training', 'BD', 'Other'],
+// };
+
+// const FiltersScreen = () => {
+//   const [modalVisible, setModalVisible] = useState(false);
+//   const [selectedFilterType, setSelectedFilterType] = useState(null);
+
+//   // Main state for selected items
+//   const [selectedYears, setSelectedYears] = useState([]);
+//   const [selectedMonths, setSelectedMonths] = useState([]);
+//   const [selectedCategories, setSelectedCategories] = useState([]);
+//   // Initialize customDateRange with Date objects or null
+//   const [customDateRange, setCustomDateRange] = useState({ from: null, to: null });
+
+//   // Temporary selections to track during modal interaction (before "Save")
+//   const [tempSelectedItems, setTempSelectedItems] = useState([]);
+//   // Temporary state for custom dates inside the modal
+//   const [tempCustomDateRange, setTempCustomDateRange] = useState({ from: null, to: null });
+
+//   // State for showing date pickers
+//   const [showFromDatePicker, setShowFromDatePicker] = useState(false);
+//   const [showToDatePicker, setShowToDatePicker] = useState(false);
+
+//   const openFilterModal = (type) => {
+//     setSelectedFilterType(type);
+
+//     switch (type) {
+//       case 'years':
+//         setTempSelectedItems([...selectedYears]);
+//         break;
+//       case 'months':
+//         setTempSelectedItems([...selectedMonths]);
+//         break;
+//       case 'categories':
+//         setTempSelectedItems([...selectedCategories]);
+//         break;
+//       case 'customDate':
+//         // Initialize temporary date range with the currently saved range
+//         setTempCustomDateRange({ ...customDateRange });
+//         break;
+//       default:
+//         setTempSelectedItems([]);
+//         break;
+//     }
+//     setModalVisible(true);
+//   };
+
+//   const closeFilterModal = () => {
+//     setModalVisible(false);
+//     setSelectedFilterType(null);
+//     setTempSelectedItems([]);
+//     setTempCustomDateRange({ from: null, to: null }); // Clear temp date range
+//     setShowFromDatePicker(false); // Hide date pickers
+//     setShowToDatePicker(false);
+//   };
+
+//   const saveFilterSelection = () => {
+//     switch (selectedFilterType) {
+//       case 'years':
+//         setSelectedYears(tempSelectedItems);
+//         break;
+//       case 'months':
+//         setSelectedMonths(tempSelectedItems);
+//         break;
+//       case 'categories':
+//         setSelectedCategories(tempSelectedItems);
+//         break;
+//       case 'customDate':
+//         // Save the temporary date range to the main state
+//         setCustomDateRange(tempCustomDateRange);
+//         break;
+//       default:
+//         break;
+//     }
+//     closeFilterModal();
+//   };
+
+//   const toggleTempCheckbox = (item) => {
+//     setTempSelectedItems((prev) =>
+//       prev.includes(item) ? prev.filter((i) => i !== item) : [...prev, item]
+//     );
+//   };
+
+//   // Handler for "From" date picker
+//   const onFromDateChange = (event, selectedDate) => {
+//     const currentDate = selectedDate || tempCustomDateRange.from;
+//     setShowFromDatePicker(Platform.OS === 'ios'); // Keep picker open on iOS until "Done"
+//     setTempCustomDateRange((prev) => ({ ...prev, from: currentDate }));
+//   };
+
+//   // Handler for "To" date picker
+//   const onToDateChange = (event, selectedDate) => {
+//     const currentDate = selectedDate || tempCustomDateRange.to;
+//     setShowToDatePicker(Platform.OS === 'ios'); // Keep picker open on iOS until "Done"
+//     setTempCustomDateRange((prev) => ({ ...prev, to: currentDate }));
+//   };
+
+//   const renderFilterContent = () => {
+//     if (selectedFilterType === 'customDate') {
+//       return (
+//         <View style={styles.customDateContainer}>
+//           <Text style={styles.modalTitle}>Select Custom Date Range</Text>
+
+//           {/* From Date Picker Trigger */}
+//           <TouchableOpacity
+//             style={styles.datePickerTrigger}
+//             onPress={() => setShowFromDatePicker(true)}
+//           >
+//             <Text style={styles.datePickerTriggerText}>
+//               From: {tempCustomDateRange.from ? tempCustomDateRange.from.toLocaleDateString() : 'Select Date'}
+//             </Text>
+//           </TouchableOpacity>
+
+//           {/* To Date Picker Trigger */}
+//           <TouchableOpacity
+//             style={styles.datePickerTrigger}
+//             onPress={() => setShowToDatePicker(true)}
+//           >
+//             <Text style={styles.datePickerTriggerText}>
+//               To: {tempCustomDateRange.to ? tempCustomDateRange.to.toLocaleDateString() : 'Select Date'}
+//             </Text>
+//           </TouchableOpacity>
+
+//           {/* Conditional rendering for DateTimePicker */}
+//           {showFromDatePicker && (
+//             <DateTimePicker
+//               testID="fromDatePicker"
+//               value={tempCustomDateRange.from || new Date()} // Default to current date if null
+//               mode="date"
+//               display={Platform.OS === 'ios' ? 'spinner' : 'default'} // 'spinner' for iOS, 'default' for Android
+//               onChange={onFromDateChange}
+//               maximumDate={tempCustomDateRange.to || undefined} // 'From' date cannot be after 'To' date
+//             />
+//           )}
+
+//           {showToDatePicker && (
+//             <DateTimePicker
+//               testID="toDatePicker"
+//               value={tempCustomDateRange.to || new Date()} // Default to current date if null
+//               mode="date"
+//               display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+//               onChange={onToDateChange}
+//               minimumDate={tempCustomDateRange.from || undefined} // 'To' date cannot be before 'From' date
+//             />
+//           )}
+
+//           <View style={styles.modalButtons}>
+//             <TouchableOpacity style={styles.modalButton} onPress={closeFilterModal}>
+//               <Text style={styles.modalButtonText}>Cancel</Text>
+//             </TouchableOpacity>
+//             <TouchableOpacity style={styles.modalButton} onPress={saveFilterSelection}>
+//               <Text style={styles.modalButtonText}>Save</Text>
+//             </TouchableOpacity>
+//           </View>
+//         </View>
+//       );
+//     }
+
+//     const data = filterOptions[selectedFilterType] || [];
+
+//     return (
+//       <View style={styles.modalContent}>
+//         <Text style={styles.modalTitle}>
+//           {selectedFilterType ? selectedFilterType.toUpperCase() : 'Filter'}
+//         </Text>
+//         <FlatList
+//           data={data}
+//           keyExtractor={(item) => item}
+//           renderItem={({ item }) => (
+//             <View style={styles.checkboxContainer}>
+//               <Text style={styles.checkboxLabel}>{item}</Text>
+//               <CheckBox
+//                 value={tempSelectedItems.includes(item)}
+//                 onValueChange={() => toggleTempCheckbox(item)}
+//               />
+//             </View>
+//           )}
+//         />
+//         <View style={styles.modalButtons}>
+//           <TouchableOpacity style={styles.modalButton} onPress={closeFilterModal}>
+//             <Text style={styles.modalButtonText}>Cancel</Text>
+//           </TouchableOpacity>
+//           <TouchableOpacity style={styles.modalButton} onPress={saveFilterSelection}>
+//             <Text style={styles.modalButtonText}>Save</Text>
+//           </TouchableOpacity>
+//         </View>
+//       </View>
+//     );
+//   };
+
+//   const handleApplyFilters = () => {
+//     console.log('APPLIED FILTERS:', {
+//       selectedYears,
+//       selectedMonths,
+//       selectedCategories,
+//       customDateRange,
+//     });
+//     // For demonstration, you might want to show a toast or navigate back
+//     // alert('Filters Applied! Check console for details.'); // Removed alert as per instructions
+//   };
 
 //   return (
-//     <ScrollView style={styles.container}>
-//       {/* Header */}
+//     <View style={styles.container}>
 //       <View style={styles.header}>
-//         <TouchableOpacity onPress={() => navigation.goBack()}>
-//           <Ionicons name="arrow-back" size={24} color="#fff" />
+//         <TouchableOpacity onPress={() => console.log('Go back (implement navigation)')}>
+//           <Text style={styles.backButton}>&lt;</Text>
 //         </TouchableOpacity>
-//         <Text style={styles.title}>Filters</Text>
+//         <Text style={styles.headerTitle}>Filters</Text>
 //       </View>
 
-//       {/* Filter Options */}
-//       <TouchableOpacity style={styles.filterOption} onPress={() => setSelectedFilter('year')}>
-//         <Text style={styles.filterText}>Years</Text>
+//       {/* Original filter options */}
+//       <View style={styles.filterOptionsContainer}>
+//         <TouchableOpacity style={styles.filterItem} onPress={() => openFilterModal('years')}>
+//           <Text style={styles.filterItemText}>Years</Text>
+//         </TouchableOpacity>
+//         <TouchableOpacity style={styles.filterItem} onPress={() => openFilterModal('months')}>
+//           <Text style={styles.filterItemText}>Months</Text>
+//         </TouchableOpacity>
+//         <TouchableOpacity style={styles.filterItem} onPress={() => openFilterModal('categories')}>
+//           <Text style={styles.filterItemText}>Categories</Text>
+//         </TouchableOpacity>
+//         <TouchableOpacity style={styles.filterItem} onPress={() => openFilterModal('customDate')}>
+//           <Text style={styles.filterItemText}>Custom Date</Text>
+//         </TouchableOpacity>
+//       </View>
+
+//       <TouchableOpacity style={styles.applyButton} onPress={handleApplyFilters}>
+//         <Text style={styles.applyButtonText}>Apply</Text>
 //       </TouchableOpacity>
 
-//       <TouchableOpacity style={styles.filterOption} onPress={() => setSelectedFilter('month')}>
-//         <Text style={styles.filterText}>Months</Text>
-//       </TouchableOpacity>
+//       {/* Moved selected data display AFTER the apply button */}
+//       <ScrollView contentContainerStyle={styles.selectedDataContainer}>
+//         <Text style={styles.selectedDataTitle}>Current Selections:</Text>
+//         <Text style={styles.selectedDataItem}>
+//           Years: {selectedYears.length > 0 ? selectedYears.join(', ') : 'None'}
+//         </Text>
+//         <Text style={styles.selectedDataItem}>
+//           Months: {selectedMonths.length > 0 ? selectedMonths.join(', ') : 'None'}
+//         </Text>
+//         <Text style={styles.selectedDataItem}>
+//           Categories: {selectedCategories.length > 0 ? selectedCategories.join(', ') : 'None'}
+//         </Text>
+//         <Text style={styles.selectedDataItem}>
+//           Custom Date: {customDateRange.from && customDateRange.to
+//             ? `${customDateRange.from.toLocaleDateString()} - ${customDateRange.to.toLocaleDateString()}`
+//             : 'None'}
+//         </Text>
+//       </ScrollView>
 
-//       <TouchableOpacity style={styles.filterOption} onPress={() => setSelectedFilter('category')}>
-//         <Text style={styles.filterText}>Categories</Text>
-//       </TouchableOpacity>
-
-//       <TouchableOpacity style={styles.filterOption} onPress={() => setSelectedFilter('custom')}>
-//         <Text style={styles.filterText}>Custom Date</Text>
-//       </TouchableOpacity>
-
-//       {/* Dynamic Filters */}
-//       {selectedFilter === 'year' && (
-//         <View>
-//           {years.map((year) => (
-//             <TouchableOpacity key={year} style={styles.optionItem} onPress={() => setSelectedYear(year)}>
-//               <Text style={styles.optionText}>{year}</Text>
-//             </TouchableOpacity>
-//           ))}
-//           {selectedYear && <Text style={styles.selectedText}>Selected Year: {selectedYear}</Text>}
-//         </View>
-//       )}
-
-//       {selectedFilter === 'month' && (
-//         <View>
-//           {months.map((month, index) => (
-//             <TouchableOpacity key={index} style={styles.optionItem} onPress={() => setSelectedMonth(month)}>
-//               <Text style={styles.optionText}>{month}</Text>
-//             </TouchableOpacity>
-//           ))}
-//           {selectedMonth && <Text style={styles.selectedText}>Selected Month: {selectedMonth}</Text>}
-//         </View>
-//       )}
-
-//       {selectedFilter === 'category' && (
-//         <View>
-//           {categories.map((cat) => (
-//             <TouchableOpacity key={cat} style={styles.optionItem} onPress={() => setSelectedCategory(cat)}>
-//               <Text style={styles.optionText}>{cat}</Text>
-//             </TouchableOpacity>
-//           ))}
-//           {selectedCategory && <Text style={styles.selectedText}>Selected Category: {selectedCategory}</Text>}
-//         </View>
-//       )}
-
-//       {selectedFilter === 'custom' && (
-//         <View>
-//           <TouchableOpacity style={styles.optionItem} onPress={() => setShowFromPicker(true)}>
-//             <Text style={styles.optionText}>From: {fromDate.toDateString()}</Text>
-//           </TouchableOpacity>
-//           <TouchableOpacity style={styles.optionItem} onPress={() => setShowToPicker(true)}>
-//             <Text style={styles.optionText}>To: {toDate.toDateString()}</Text>
-//           </TouchableOpacity>
-
-//           {showFromPicker && (
-//             <DateTimePicker
-//               value={fromDate}
-//               mode="date"
-//               display="default"
-//               onChange={(event, selectedDate) => {
-//                 setShowFromPicker(false);
-//                 if (selectedDate) setFromDate(selectedDate);
-//               }}
-//             />
-//           )}
-//           {showToPicker && (
-//             <DateTimePicker
-//               value={toDate}
-//               mode="date"
-//               display="default"
-//               onChange={(event, selectedDate) => {
-//                 setShowToPicker(false);
-//                 if (selectedDate) setToDate(selectedDate);
-//               }}
-//             />
-//           )}
-//         </View>
-//       )}
-
-//       {/* Apply Button */}
-//       <TouchableOpacity style={styles.applyButton}>
-//         <Text style={styles.applyText}>Apply</Text>
-//       </TouchableOpacity>
-//     </ScrollView>
+//       <Modal animationType="slide" transparent={true} visible={modalVisible} onRequestClose={closeFilterModal}>
+//         <View style={styles.centeredView}>{renderFilterContent()}</View>
+//       </Modal>
+//     </View>
 //   );
-// }
+// };
 
 // const styles = StyleSheet.create({
-//   container: {
+
+//   container: { 
 //     flex: 1,
-//     backgroundColor: '#0C0F14',
-//     padding: 20,
+//      backgroundColor: '#1E1E2C',
+//       padding: 20, 
+//       paddingTop: 50 
+//     },
+
+//   header:
+//    {
+//      flexDirection: 'row', 
+//     alignItems: 'center', 
+//     marginBottom: 30
+//    },
+
+//   backButton:
+//    { 
+//     color: '#FFF', 
+//     fontSize: 24, 
+//     marginRight: 15 
 //   },
-//   header: {
-//     flexDirection: 'row',
-//     alignItems: 'center',
-//     gap: 10,
-//     marginBottom: 30,
-//   },
-//   title: {
-//     fontSize: 20,
-//     color: '#fff',
-//     fontWeight: 'bold',
-//     marginLeft: 10,
-//   },
-//   filterOption: {
-//     backgroundColor: '#1C1F26',
-//     borderRadius: 10,
+
+//   headerTitle:
+//    { 
+//     color: '#FFF', 
+//     fontSize: 22, 
+//     fontWeight: 'bold' },
+
+//   selectedDataContainer: {
+//     backgroundColor: '#2C2C3A',
 //     padding: 15,
+//     borderRadius: 8,
+//     marginTop: 20, // Add some top margin to separate from the apply button
+//   },
+//   selectedDataTitle: {
+//     color: '#FFF',
+//     fontSize: 18,
+//     fontWeight: 'bold',
+//     marginBottom: 10,
+//   },
+//   selectedDataItem: {
+//     color: '#D3D3D3',
+//     fontSize: 14,
+//     marginBottom: 5,
+//   },
+//   filterOptionsContainer: {
+//     // No specific styling needed here, items style themselves
+//   },
+//   filterItem: {
+//     backgroundColor: '#2C2C3A',
+//     paddingVertical: 18,
+//     paddingHorizontal: 15,
+//     borderRadius: 8,
 //     marginBottom: 15,
 //   },
-//   filterText: {
-//     color: '#fff',
-//     fontSize: 16,
-//   },
+//   filterItemText: { color: '#FFF', fontSize: 16 },
 //   applyButton: {
-//     backgroundColor: '#E74C3C',
-//     padding: 15,
-//     borderRadius: 10,
+//     backgroundColor: '#FF6347',
+//     paddingVertical: 18,
+//     borderRadius: 8,
+//     alignItems: 'center',
 //     marginTop: 30,
+//   },
+//   applyButtonText:
+//    { 
+//     color: '#FFF',
+//      fontSize: 18,
+//       fontWeight: 'bold'
+//      },
+
+//   centeredView: {
+//     flex: 1,
+//     justifyContent: 'center',
+//     alignItems: 'center',
+//     backgroundColor: 'rgba(0,0,0,0.7)',
+//   },
+
+//   modalContent: {
+//     backgroundColor: '#333333',
+//     borderRadius: 10,
+//     padding: 20,
+//     width: '85%',
+//     maxHeight: '70%',
+//   },
+
+//   modalTitle: 
+//   { 
+//     color: '#FFF', 
+//     fontSize: 20,
+//      fontWeight: 'bold', 
+//      marginBottom: 20, 
+//      textAlign: 'center' 
+//     },
+
+//   checkboxContainer: {
+//     flexDirection: 'row',
+//     justifyContent: 'space-between',
+//     alignItems: 'center',
+//     paddingVertical: 10,
+//     borderBottomWidth: 1,
+//     borderBottomColor: '#444',
+//   },
+//   checkboxLabel: 
+//   { 
+//     color: '#FFF', 
+//     fontSize: 16 
+
+//   },
+
+//   modalButtons:
+//    {
+//      flexDirection: 'row', 
+//      justifyContent: 'space-around',
+//       marginTop: 20 
+//     },
+
+//   modalButton:
+//    {
+//     backgroundColor: '#555',
+//     paddingVertical: 10,
+//     paddingHorizontal: 20,
+//     borderRadius: 5,
+//   },
+
+//   modalButtonText: 
+//   {
+//      color: '#FFF',
+//      fontSize: 16, 
+//      fontWeight: 'bold' 
+//     },
+
+//   customDateContainer: {
+//     backgroundColor: '#333333',
+//     borderRadius: 10,
+//     padding: 20,
+//     width: '85%',
 //     alignItems: 'center',
 //   },
-//   applyText: {
-//     color: '#fff',
-//     fontWeight: 'bold',
-//   },
-//   optionItem: {
-//     backgroundColor: '#2E3239',
-//     padding: 10,
-//     marginVertical: 5,
+//   datePickerTrigger: {
+//     backgroundColor: '#2C2C3A',
+//     padding: 15,
 //     borderRadius: 8,
+//     marginVertical: 10,
+//     width: '100%',
+//     alignItems: 'center',
 //   },
-//   optionText: {
-//     color: '#fff',
-//   },
-//   selectedText: {
-//     color: '#f0f0f0',
-//     marginTop: 10,
-//     fontStyle: 'italic',
+  
+//   datePickerTriggerText: {
+//     color: '#FFF',
+//     fontSize: 16,
 //   },
 // });
+
+// export default FiltersScreen;
 
 // import React, { useState } from 'react';
 // import {
 //   View,
 //   Text,
-//   StyleSheet,
 //   TouchableOpacity,
+//   StyleSheet,
+//   Modal,
+//   FlatList,
 //   Platform,
 //   ScrollView,
-//   SafeAreaView // Added SafeAreaView for better layout on notched devices
 // } from 'react-native';
 // import DateTimePicker from '@react-native-community/datetimepicker';
-// import { Ionicons } from '@expo/vector-icons';
 
-// // You will need to import your DownloadScreen here if you intend to navigate to it.
-// // Make sure the path is correct based on your project structure.
-// // For example, if DownloadScreen.js is in the same directory:
-// // import DownloadScreen from './DownloadScreen';
+// const CheckBox = ({ value, onValueChange }) => (
+//   <TouchableOpacity
+//     onPress={onValueChange}
+//     style={{
+//       width: 22,
+//       height: 22,
+//       borderRadius: 4,
+//       borderWidth: 2,
+//       borderColor: '#FFF',
+//       backgroundColor: value ? '#9566daff' : 'transparent',
+//       justifyContent: 'center',
+//       alignItems: 'center',
+//     }}
+//   >
+//     {value && <Text style={{ color: '#FFF', fontSize: 14 }}>✓</Text>}
+//   </TouchableOpacity>
+// );
 
-// export default function FilterScreen({ navigation }) {
-//   const [selectedFilter, setSelectedFilter] = useState(null); // 'year', 'month', 'category', 'custom'
-//   const [selectedYear, setSelectedYear] = useState(null);
-//   const [selectedMonth, setSelectedMonth] = useState(null);
-//   const [selectedCategory, setSelectedCategory] = useState(null);
+// const filterOptions = {
+//   years: ['2025', '2024', '2023', '2022', '2021', '2020', '2019', '2018', '2017', '2016', '2015', '2014'],
+//   months: ['January 25', 'February 25', 'March 25', 'April 25', 'May 25', 'June 25', 'July 25', 'August 25', 'September 25', 'October 25', 'November 25', 'December 25'],
+//   categories: ['IT', 'Interview', 'Healthcare', 'Digital marketing', 'Training', 'BD', 'Other'],
+// };
 
-//   const [fromDate, setFromDate] = useState(new Date());
-//   const [toDate, setToDate] = useState(new Date());
-//   const [showFromPicker, setShowFromPicker] = useState(false);
-//   const [showToPicker, setShowToPicker] = useState(false);
+// const FiltersScreen = () => {
+//   const [modalVisible, setModalVisible] = useState(false);
+//   const [selectedFilterType, setSelectedFilterType] = useState(null);
 
-//   // Example data for filters
-//   const years = [2022, 2023, 2024, 2025];
-//   const months = [
-//     'January', 'February', 'March', 'April',
-//     'May', 'June', 'July', 'August',
-//     'September', 'October', 'November', 'December'
-//   ];
-//   const categories = ['Visitor', 'Employee', 'Admin'];
+//   const [selectedYears, setSelectedYears] = useState([]);
+//   const [selectedMonths, setSelectedMonths] = useState([]);
+//   const [selectedCategories, setSelectedCategories] = useState([]);
+//   const [customDateRange, setCustomDateRange] = useState({ from: null, to: null });
 
-//   // Handler for date picker changes
-//   const onChangeFromDate = (event, selectedDate) => {
-//     const currentDate = selectedDate || fromDate;
-//     setShowFromPicker(Platform.OS === 'ios');
-//     setFromDate(currentDate);
+//   const [tempSelectedItems, setTempSelectedItems] = useState([]);
+//   const [tempCustomDateRange, setTempCustomDateRange] = useState({ from: null, to: null });
+
+//   const [showFromDatePicker, setShowFromDatePicker] = useState(false);
+//   const [showToDatePicker, setShowToDatePicker] = useState(false);
+
+//   const openFilterModal = (type) => {
+//     setSelectedFilterType(type);
+//     switch (type) {
+//       case 'years':
+//         setTempSelectedItems([...selectedYears]);
+//         break;
+//       case 'months':
+//         setTempSelectedItems([...selectedMonths]);
+//         break;
+//       case 'categories':
+//         setTempSelectedItems([...selectedCategories]);
+//         break;
+//       case 'customDate':
+//         setTempCustomDateRange({ ...customDateRange });
+//         break;
+//       default:
+//         setTempSelectedItems([]);
+//         break;
+//     }
+//     setModalVisible(true);
 //   };
 
-//   const onChangeToDate = (event, selectedDate) => {
-//     const currentDate = selectedDate || toDate;
-//     setShowToPicker(Platform.OS === 'ios');
-//     setToDate(currentDate);
+//   const closeFilterModal = () => {
+//     setModalVisible(false);
+//     setSelectedFilterType(null);
+//     setTempSelectedItems([]);
+//     setTempCustomDateRange({ from: null, to: null });
+//     setShowFromDatePicker(false);
+//     setShowToDatePicker(false);
 //   };
 
-//   // Function to handle applying filters and navigating
+//   const saveFilterSelection = () => {
+//     switch (selectedFilterType) {
+//       case 'years':
+//         setSelectedYears(tempSelectedItems);
+//         break;
+//       case 'months':
+//         setSelectedMonths(tempSelectedItems);
+//         break;
+//       case 'categories':
+//         setSelectedCategories(tempSelectedItems);
+//         break;
+//       case 'customDate':
+//         setCustomDateRange(tempCustomDateRange);
+//         break;
+//       default:
+//         break;
+//     }
+//     closeFilterModal();
+//   };
+
+//   const toggleTempCheckbox = (item) => {
+//     setTempSelectedItems((prev) =>
+//       prev.includes(item) ? prev.filter((i) => i !== item) : [...prev, item]
+//     );
+//   };
+
+//   const onFromDateChange = (event, selectedDate) => {
+//     const currentDate = selectedDate || tempCustomDateRange.from;
+//     setShowFromDatePicker(Platform.OS === 'ios');
+//     setTempCustomDateRange((prev) => ({ ...prev, from: currentDate }));
+//   };
+
+//   const onToDateChange = (event, selectedDate) => {
+//     const currentDate = selectedDate || tempCustomDateRange.to;
+//     setShowToDatePicker(Platform.OS === 'ios');
+//     setTempCustomDateRange((prev) => ({ ...prev, to: currentDate }));
+//   };
+
 //   const handleApplyFilters = () => {
-//     // In a real application, you would typically consolidate the selected filter
-//     // values into an object and pass it as params to the target screen.
-//     const filters = {
-//       filterType: selectedFilter,
-//       year: selectedYear,
-//       month: selectedMonth,
-//       category: selectedCategory,
-//       fromDate: selectedFilter === 'custom' ? fromDate.toISOString() : null,
-//       toDate: selectedFilter === 'custom' ? toDate.toISOString() : null,
-//     };
+//     console.log('APPLIED FILTERS:', {
+//       selectedYears,
+//       selectedMonths,
+//       selectedCategories,
+//       customDateRange,
+//     });
+//   };
 
-//     console.log("Applying Filters:", filters);
+//   const clearAllFilters = () => {
+//     setSelectedYears([]);
+//     setSelectedMonths([]);
+//     setSelectedCategories([]);
+//     setCustomDateRange({ from: null, to: null });
+//   };
 
-//     // Navigate to the DownloadScreen and pass the filters as parameters
-//     // Make sure 'DownloadScreen' is the correct name of your route in navigation stack.
-//     navigation.navigate('DownloadScreen', filters);
+//   const renderFilterContent = () => {
+//     if (selectedFilterType === 'customDate') {
+//       return (
+//         <View style={styles.customDateContainer}>
+//           <Text style={styles.modalTitle}>Select Custom Date Range</Text>
+
+//           <TouchableOpacity style={styles.datePickerTrigger} onPress={() => setShowFromDatePicker(true)}>
+//             <Text style={styles.datePickerTriggerText}>
+//               From: {tempCustomDateRange.from ? tempCustomDateRange.from.toLocaleDateString() : 'Select Date'}
+//             </Text>
+//           </TouchableOpacity>
+
+//           <TouchableOpacity style={styles.datePickerTrigger} onPress={() => setShowToDatePicker(true)}>
+//             <Text style={styles.datePickerTriggerText}>
+//               To: {tempCustomDateRange.to ? tempCustomDateRange.to.toLocaleDateString() : 'Select Date'}
+//             </Text>
+//           </TouchableOpacity>
+
+//           {showFromDatePicker && (
+//             <DateTimePicker
+//               testID="fromDatePicker"
+//               value={tempCustomDateRange.from || new Date()}
+//               mode="date"
+//               display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+//               onChange={onFromDateChange}
+//               maximumDate={tempCustomDateRange.to || undefined}
+//             />
+//           )}
+
+//           {showToDatePicker && (
+//             <DateTimePicker
+//               testID="toDatePicker"
+//               value={tempCustomDateRange.to || new Date()}
+//               mode="date"
+//               display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+//               onChange={onToDateChange}
+//               minimumDate={tempCustomDateRange.from || undefined}
+//             />
+//           )}
+
+//           <View style={styles.modalButtons}>
+//             <TouchableOpacity style={styles.modalButton} onPress={closeFilterModal}>
+//               <Text style={styles.modalButtonText}>Cancel</Text>
+//             </TouchableOpacity>
+//             <TouchableOpacity style={styles.modalButton} onPress={saveFilterSelection}>
+//               <Text style={styles.modalButtonText}>Save</Text>
+//             </TouchableOpacity>
+//           </View>
+//         </View>
+//       );
+//     }
+
+//     const data = filterOptions[selectedFilterType] || [];
+
+//     return (
+//       <View style={styles.modalContent}>
+//         <Text style={styles.modalTitle}>
+//           {selectedFilterType ? selectedFilterType.toUpperCase() : 'Filter'}
+//         </Text>
+//         <FlatList
+//           data={data}
+//           keyExtractor={(item) => item}
+//           renderItem={({ item }) => (
+//             <View style={styles.checkboxContainer}>
+//               <Text style={styles.checkboxLabel}>{item}</Text>
+//               <CheckBox
+//                 value={tempSelectedItems.includes(item)}
+//                 onValueChange={() => toggleTempCheckbox(item)}
+//               />
+//             </View>
+//           )}
+//         />
+//         <View style={styles.modalButtons}>
+//           <TouchableOpacity style={styles.modalButton} onPress={closeFilterModal}>
+//             <Text style={styles.modalButtonText}>Cancel</Text>
+//           </TouchableOpacity>
+//           <TouchableOpacity style={styles.modalButton} onPress={saveFilterSelection}>
+//             <Text style={styles.modalButtonText}>Save</Text>
+//           </TouchableOpacity>
+//         </View>
+//       </View>
+//     );
 //   };
 
 //   return (
-//     // <SafeAreaView style={styles.safeArea}> {/* Wrap with SafeAreaView */}
-//     <SafeAreaView style={styles.safeArea}>
-
-//       <ScrollView style={styles.container}>
-//         {/* Header */}
-//         <View style={styles.header}>
-//           <TouchableOpacity onPress={() => navigation.goBack()}>
-//             <Ionicons name="arrow-back" size={24} color="#fff" />
-//           </TouchableOpacity>
-//           <Text style={styles.title}>Filters</Text>
-//         </View>
-
-//         {/* Filter Options */}
-//         <TouchableOpacity
-//           style={[styles.filterOption, selectedFilter === 'year' && styles.selectedFilterOption]}
-//           onPress={() => {
-//             setSelectedFilter('year');
-//             setSelectedMonth(null); // Clear other selections
-//             setSelectedCategory(null);
-//           }}>
-//           <Text style={styles.filterText}>Years</Text>
+//     <View style={styles.container}>
+//       <View style={styles.header}>
+//         <TouchableOpacity onPress={() => console.log('Go back (implement navigation)')}>
+//           <Text style={styles.backButton}>&lt;</Text>
 //         </TouchableOpacity>
+//         <Text style={styles.headerTitle}>Filters</Text>
+//       </View>
 
-//         <TouchableOpacity
-//           style={[styles.filterOption, selectedFilter === 'month' && styles.selectedFilterOption]}
-//           onPress={() => {
-//             setSelectedFilter('month');
-//             setSelectedYear(null); // Clear other selections
-//             setSelectedCategory(null);
-//           }}>
-//           <Text style={styles.filterText}>Months</Text>
+//       <View style={styles.filterOptionsContainer}>
+//         <TouchableOpacity style={styles.filterItem} onPress={() => openFilterModal('years')}>
+//           <Text style={styles.filterItemText}>Years</Text>
 //         </TouchableOpacity>
-
-//         <TouchableOpacity
-//           style={[styles.filterOption, selectedFilter === 'category' && styles.selectedFilterOption]}
-//           onPress={() => {
-//             setSelectedFilter('category');
-//             setSelectedYear(null); // Clear other selections
-//             setSelectedMonth(null);
-//           }}>
-//           <Text style={styles.filterText}>Categories</Text>
+//         <TouchableOpacity style={styles.filterItem} onPress={() => openFilterModal('months')}>
+//           <Text style={styles.filterItemText}>Months</Text>
 //         </TouchableOpacity>
-
-//         <TouchableOpacity
-//           style={[styles.filterOption, selectedFilter === 'custom' && styles.selectedFilterOption]}
-//           onPress={() => {
-//             setSelectedFilter('custom');
-//             setSelectedYear(null); // Clear other selections
-//             setSelectedMonth(null);
-//             setSelectedCategory(null);
-//           }}>
-//           <Text style={styles.filterText}>Custom Date</Text>
+//         <TouchableOpacity style={styles.filterItem} onPress={() => openFilterModal('categories')}>
+//           <Text style={styles.filterItemText}>Categories</Text>
 //         </TouchableOpacity>
-
-//         {/* Dynamic Filters Content based on selectedFilter */}
-//         {selectedFilter === 'year' && (
-//           <View style={styles.subOptionsContainer}>
-//             {years.map((year) => (
-//               <TouchableOpacity
-//                 key={year}
-//                 style={[styles.optionItem, selectedYear === year && styles.selectedSubOptionItem]}
-//                 onPress={() => setSelectedYear(year)}>
-//                 <Text style={styles.optionText}>{year}</Text>
-//               </TouchableOpacity>
-//             ))}
-//             {selectedYear && <Text style={styles.selectedDisplayText}>Selected Year: {selectedYear}</Text>}
-//           </View>
-//         )}
-
-//         {selectedFilter === 'month' && (
-//           <View style={styles.subOptionsContainer}>
-//             {months.map((month, index) => (
-//               <TouchableOpacity
-//                 key={index}
-//                 style={[styles.optionItem, selectedMonth === month && styles.selectedSubOptionItem]}
-//                 onPress={() => setSelectedMonth(month)}>
-//                 <Text style={styles.optionText}>{month}</Text>
-//               </TouchableOpacity>
-//             ))}
-//             {selectedMonth && <Text style={styles.selectedDisplayText}>Selected Month: {selectedMonth}</Text>}
-//           </View>
-//         )}
-
-//         {selectedFilter === 'category' && (
-//           <View style={styles.subOptionsContainer}>
-//             {categories.map((cat) => (
-//               <TouchableOpacity
-//                 key={cat}
-//                 style={[styles.optionItem, selectedCategory === cat && styles.selectedSubOptionItem]}
-//                 onPress={() => setSelectedCategory(cat)}>
-//                 <Text style={styles.optionText}>{cat}</Text>
-//               </TouchableOpacity>
-//             ))}
-//             {selectedCategory && <Text style={styles.selectedDisplayText}>Selected Category: {selectedCategory}</Text>}
-//           </View>
-//         )}
-
-//         {selectedFilter === 'custom' && (
-//           <View style={styles.subOptionsContainer}>
-//             <TouchableOpacity style={styles.optionItem} onPress={() => setShowFromPicker(true)}>
-//               <Text style={styles.optionText}>From: {fromDate.toDateString()}</Text>
-//             </TouchableOpacity>
-//             {showFromPicker && (
-//               <DateTimePicker
-//                 testID="datePickerFrom"
-//                 value={fromDate}
-//                 mode="date"
-//                 display="default"
-//                 onChange={onChangeFromDate}
-//               />
-//             )}
-
-//             <TouchableOpacity style={styles.optionItem} onPress={() => setShowToPicker(true)}>
-//               <Text style={styles.optionText}>To: {toDate.toDateString()}</Text>
-//             </TouchableOpacity>
-//             {showToPicker && (
-//               <DateTimePicker
-//                 testID="datePickerTo"
-//                 value={toDate}
-//                 mode="date"
-//                 display="default"
-//                 onChange={onChangeToDate}
-//               />
-//             )}
-//             {selectedFilter === 'custom' && (
-//               <Text style={styles.selectedDisplayText}>
-//                 Selected Range: {fromDate.toDateString()} - {toDate.toDateString()}
-//               </Text>
-//             )}
-//           </View>
-//         )}
-
-//         {/* Apply Button */}
-//         <TouchableOpacity style={styles.applyButton} onPress={handleApplyFilters}>
-//           <Text style={styles.applyText}>Apply</Text>
+//         <TouchableOpacity style={styles.filterItem} onPress={() => openFilterModal('customDate')}>
+//           <Text style={styles.filterItemText}>Custom Date</Text>
 //         </TouchableOpacity>
+//       </View>
+
+//       <TouchableOpacity style={styles.applyButton} onPress={handleApplyFilters}>
+//         <Text style={styles.applyButtonText}>Apply</Text>
+//       </TouchableOpacity>
+
+//       <TouchableOpacity style={styles.clearButton} onPress={clearAllFilters}>
+//         <Text style={styles.clearButtonText}>Clear</Text>
+//       </TouchableOpacity>
+
+//       <ScrollView contentContainerStyle={styles.selectedDataContainer}>
+//         <Text style={styles.selectedDataTitle}>Current Selections:</Text>
+//         <Text style={styles.selectedDataItem}>
+//           Years: {selectedYears.length > 0 ? selectedYears.join(', ') : 'None'}
+//         </Text>
+//         <Text style={styles.selectedDataItem}>
+//           Months: {selectedMonths.length > 0 ? selectedMonths.join(', ') : 'None'}
+//         </Text>
+//         <Text style={styles.selectedDataItem}>
+//           Categories: {selectedCategories.length > 0 ? selectedCategories.join(', ') : 'None'}
+//         </Text>
+//         <Text style={styles.selectedDataItem}>
+//           Custom Date: {customDateRange.from && customDateRange.to
+//             ? `${customDateRange.from.toLocaleDateString()} - ${customDateRange.to.toLocaleDateString()}`
+//             : 'None'}
+//         </Text>
 //       </ScrollView>
-//     </SafeAreaView>
-//   );
-// }
 
-// const styles = StyleSheet.create({
-//   safeArea: {
-//     flex: 1,
-//     backgroundColor: '#0C0F14', // Dark background for the entire screen
-//   },
-//   container: {
-//     flex: 1,
-//     padding: 20,
-//   },
-//   header: {
-//     flexDirection: 'row',
-//     alignItems: 'center',
-//     marginBottom: 30,
-//   },
-//   title: {
-//     fontSize: 20,
-//     color: '#fff',
-//     fontWeight: 'bold',
-//     marginLeft: 10,
-//   },
-//   filterOption: {
-//     backgroundColor: '#1C1F26', // Background for main filter options
-//     borderRadius: 10,
-//     padding: 15,
-//     marginBottom: 15,
-//     borderWidth: 1,
-//     borderColor: 'transparent', // Default border
-//   },
-//   selectedFilterOption: {
-//     borderColor: '#E74C3C', // Highlight color for the selected main filter
-//     borderWidth: 2,
-//   },
-//   filterText: {
-//     color: '#fff',
-//     fontSize: 16,
-//   },
-//   subOptionsContainer: {
-//     marginTop: 10,
-//     marginBottom: 20,
-//     paddingHorizontal: 10, // Indent sub-options slightly
-//   },
-//   optionItem: {
-//     backgroundColor: '#2E3239', // Background for sub-options (year, month, category items)
-//     padding: 12,
-//     marginVertical: 5,
-//     borderRadius: 8,
-//     borderWidth: 1,
-//     borderColor: 'transparent', // Default border
-//   },
-//   selectedSubOptionItem: {
-//     backgroundColor: '#3A4250', // Slightly different background for selected sub-option
-//     borderColor: '#E74C3C', // Highlight border for selected sub-option
-//   },
-//   optionText: {
-//     color: '#fff',
-//     fontSize: 15,
-//   },
-//   selectedDisplayText: {
-//     color: '#A0A0A0', // Lighter grey for selected text display
-//     marginTop: 10,
-//     fontStyle: 'italic',
-//     textAlign: 'center',
-//     fontSize: 14,
-//   },
-//   applyButton: {
-//     backgroundColor: '#E74C3C', // Red apply button
-//     padding: 15,
-//     borderRadius: 10,
-//     marginTop: 30,
-//     alignItems: 'center',
-//     justifyContent: 'center',
-//   },
-//   applyText: {
-//     color: '#fff',
-//     fontWeight: 'bold',
-//     fontSize: 18,
-//   },
-// });
+//       <Modal animationType="slide" transparent={true} visible={modalVisible} onRequestClose={closeFilterModal}>
+//         <View style={styles.centeredView}>{renderFilterContent()}</View>
+//       </Modal>
+//     </View>
+//   );
+// };
 
 import React, { useState } from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   TouchableOpacity,
+  StyleSheet,
+  Modal,
+  FlatList,
   Platform,
   ScrollView,
-  SafeAreaView,
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { useNavigation } from '@react-navigation/native'; // ✅ Add this import
 import { Ionicons } from '@expo/vector-icons';
 
-export default function FilterScreen({ navigation }) {
-  const [selectedFilter, setSelectedFilter] = useState(null);
-  const [selectedYear, setSelectedYear] = useState(null);
-  const [selectedMonth, setSelectedMonth] = useState(null);
-  const [selectedCategory, setSelectedCategory] = useState(null);
-  const [fromDate, setFromDate] = useState(new Date());
-  const [toDate, setToDate] = useState(new Date());
-  const [showFromPicker, setShowFromPicker] = useState(false);
-  const [showToPicker, setShowToPicker] = useState(false);
 
-  const years = [2022, 2023, 2024, 2025];
-  const months = [
-    'January', 'February', 'March', 'April',
-    'May', 'June', 'July', 'August',
-    'September', 'October', 'November', 'December'
-  ];
-  const categories = ['Visitor', 'Employee', 'Admin'];
+const CheckBox = ({ value, onValueChange }) => (
+  <TouchableOpacity
+    onPress={onValueChange}
+    style={{
+      width: 22,
+      height: 22,
+      borderRadius: 4,
+      borderWidth: 2,
+      borderColor: '#FFF',
+      backgroundColor: value ? '#9566daff' : 'transparent',
+      justifyContent: 'center',
+      alignItems: 'center',
+    }}
+  >
+    {value && <Text style={{ color: '#FFF', fontSize: 14 }}>✓</Text>}
+  </TouchableOpacity>
+);
 
-  const handleApplyFilters = () => {
-    const filters = {
-      filterType: selectedFilter,
-      year: selectedYear,
-      month: selectedMonth,
-      category: selectedCategory,
-      fromDate: selectedFilter === 'custom' ? fromDate.toISOString() : null,
-      toDate: selectedFilter === 'custom' ? toDate.toISOString() : null,
-    };
-    console.log("Applying Filters:", filters);
-    navigation.navigate('DownloadScreen', filters);
+const filterOptions = {
+  years: ['2025', '2024', '2023', '2022', '2021', '2020', '2019', '2018', '2017', '2016', '2015', '2014'],
+  months: ['January 25', 'February 25', 'March 25', 'April 25', 'May 25', 'June 25', 'July 25', 'August 25', 'September 25', 'October 25', 'November 25', 'December 25'],
+  categories: ['IT', 'Interview', 'Healthcare', 'Digital marketing', 'Training', 'BD', 'Other'],
+};
+
+const FiltersScreen = () => {
+  const navigation = useNavigation(); // ✅ Initialize navigation
+
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedFilterType, setSelectedFilterType] = useState(null);
+
+  const [selectedYears, setSelectedYears] = useState([]);
+  const [selectedMonths, setSelectedMonths] = useState([]);
+  const [selectedCategories, setSelectedCategories] = useState([]);
+  const [customDateRange, setCustomDateRange] = useState({ from: null, to: null });
+
+  const [tempSelectedItems, setTempSelectedItems] = useState([]);
+  const [tempCustomDateRange, setTempCustomDateRange] = useState({ from: null, to: null });
+
+  const [showFromDatePicker, setShowFromDatePicker] = useState(false);
+  const [showToDatePicker, setShowToDatePicker] = useState(false);
+
+  const openFilterModal = (type) => {
+    setSelectedFilterType(type);
+    switch (type) {
+      case 'years':
+        setTempSelectedItems([...selectedYears]);
+        break;
+      case 'months':
+        setTempSelectedItems([...selectedMonths]);
+        break;
+      case 'categories':
+        setTempSelectedItems([...selectedCategories]);
+        break;
+      case 'customDate':
+        setTempCustomDateRange({ ...customDateRange });
+        break;
+      default:
+        setTempSelectedItems([]);
+        break;
+    }
+    setModalVisible(true);
   };
 
-  const renderSummary = (type) => {
-    switch (type) {
-      case 'year': return selectedYear ? `✓ ${selectedYear}` : '';
-      case 'month': return selectedMonth ? `✓ ${selectedMonth}` : '';
-      case 'category': return selectedCategory ? `✓ ${selectedCategory}` : '';
-      case 'custom': return fromDate && toDate ? `✓ ${fromDate.toDateString()} → ${toDate.toDateString()}` : '';
-      default: return '';
+  const closeFilterModal = () => {
+    setModalVisible(false);
+    setSelectedFilterType(null);
+    setTempSelectedItems([]);
+    setTempCustomDateRange({ from: null, to: null });
+    setShowFromDatePicker(false);
+    setShowToDatePicker(false);
+  };
+
+  const saveFilterSelection = () => {
+    switch (selectedFilterType) {
+      case 'years':
+        setSelectedYears(tempSelectedItems);
+        break;
+      case 'months':
+        setSelectedMonths(tempSelectedItems);
+        break;
+      case 'categories':
+        setSelectedCategories(tempSelectedItems);
+        break;
+      case 'customDate':
+        setCustomDateRange(tempCustomDateRange);
+        break;
+      default:
+        break;
     }
+    closeFilterModal();
+  };
+
+  const toggleTempCheckbox = (item) => {
+    setTempSelectedItems((prev) =>
+      prev.includes(item) ? prev.filter((i) => i !== item) : [...prev, item]
+    );
+  };
+
+  const onFromDateChange = (event, selectedDate) => {
+    const currentDate = selectedDate || tempCustomDateRange.from;
+    setShowFromDatePicker(Platform.OS === 'ios');
+    setTempCustomDateRange((prev) => ({ ...prev, from: currentDate }));
+  };
+
+  const onToDateChange = (event, selectedDate) => {
+    const currentDate = selectedDate || tempCustomDateRange.to;
+    setShowToDatePicker(Platform.OS === 'ios');
+    setTempCustomDateRange((prev) => ({ ...prev, to: currentDate }));
+  };
+
+  // const handleApplyFilters = () => {
+  //   console.log('APPLIED FILTERS:', {
+  //     selectedYears,
+  //     selectedMonths,
+  //     selectedCategories,
+  //     customDateRange,
+  //   });
+  // };
+
+  // Inside FiltersScreen.js
+const handleApplyFilters = () => {
+  navigation.navigate('DownloadScreen', {
+    selectedYears,
+    selectedMonths,
+    selectedCategories,
+    customDateRange,
+  });
+};
+
+  const clearAllFilters = () => {
+    setSelectedYears([]);
+    setSelectedMonths([]);
+    setSelectedCategories([]);
+    setCustomDateRange({ from: null, to: null });
+  };
+
+  const renderFilterContent = () => {
+    if (selectedFilterType === 'customDate') {
+      return (
+        <View style={styles.customDateContainer}>
+          <Text style={styles.modalTitle}>Select Custom Date Range</Text>
+
+          <TouchableOpacity style={styles.datePickerTrigger} onPress={() => setShowFromDatePicker(true)}>
+  <Text style={styles.datePickerTriggerText}>
+    From: {tempCustomDateRange.from ? tempCustomDateRange.from.toLocaleDateString() : 'Select Date'}
+  </Text>
+</TouchableOpacity>
+
+<TouchableOpacity style={styles.datePickerTrigger} onPress={() => setShowToDatePicker(true)}>
+  <Text style={styles.datePickerTriggerText}>
+    To: {tempCustomDateRange.to ? tempCustomDateRange.to.toLocaleDateString() : 'Select Date'}
+  </Text>
+</TouchableOpacity>
+
+
+          {showFromDatePicker && (
+            <DateTimePicker
+              testID="fromDatePicker"
+              value={tempCustomDateRange.from || new Date()}
+              mode="date"
+              display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+              onChange={onFromDateChange}
+              maximumDate={tempCustomDateRange.to || undefined}
+            />
+          )}
+
+          {showToDatePicker && (
+            <DateTimePicker
+              testID="toDatePicker"
+              value={tempCustomDateRange.to || new Date()}
+              mode="date"
+              display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+              onChange={onToDateChange}
+              minimumDate={tempCustomDateRange.from || undefined}
+            />
+          )}
+
+          <View style={styles.modalButtons}>
+            <TouchableOpacity style={styles.modalButton} onPress={closeFilterModal}>
+              <Text style={styles.modalButtonText}>Cancel</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.modalButton} onPress={saveFilterSelection}>
+              <Text style={styles.modalButtonText}>Save</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      );
+    }
+
+    const data = filterOptions[selectedFilterType] || [];
+
+    return (
+      <View style={styles.modalContent}>
+        <Text style={styles.modalTitle}>
+          {selectedFilterType ? selectedFilterType.toUpperCase() : 'Filter'}
+        </Text>
+        <FlatList
+          data={data}
+          keyExtractor={(item) => item}
+          renderItem={({ item }) => (
+            <View style={styles.checkboxContainer}>
+              <Text style={styles.checkboxLabel}>{item}</Text>
+              <CheckBox
+                value={tempSelectedItems.includes(item)}
+                onValueChange={() => toggleTempCheckbox(item)}
+              />
+            </View>
+          )}
+        />
+        <View style={styles.modalButtons}>
+          <TouchableOpacity style={styles.modalButton} onPress={closeFilterModal}>
+            <Text style={styles.modalButtonText}>Cancel</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.modalButton} onPress={saveFilterSelection}>
+            <Text style={styles.modalButtonText}>Save</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <ScrollView style={styles.container}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Ionicons name="arrow-back" size={24} color="#fff" />
-          </TouchableOpacity>
-          <Text style={styles.title}>Filters</Text>
-        </View>
-
-        {/* FILTER OPTIONS WITH CHECKBOX-LIKE DISPLAY */}
-        {['year', 'month', 'category', 'custom'].map((filterType) => (
-          <TouchableOpacity
-            key={filterType}
-            style={[
-              styles.filterOption,
-              selectedFilter === filterType && styles.selectedFilterOption
-            ]}
-            onPress={() => {
-              setSelectedFilter(filterType);
-              if (filterType !== 'year') setSelectedYear(null);
-              if (filterType !== 'month') setSelectedMonth(null);
-              if (filterType !== 'category') setSelectedCategory(null);
-            }}
-          >
-            <Text style={styles.filterText}>
-              {filterType === 'custom' ? 'Custom Date' : filterType.charAt(0).toUpperCase() + filterType.slice(1)}
-            </Text>
-            <Text style={styles.summaryText}>{renderSummary(filterType)}</Text>
-          </TouchableOpacity>
-        ))}
-
-        {/* SUB-OPTIONS RENDERING */}
-        {selectedFilter === 'year' && (
-          <View style={styles.subOptionsContainer}>
-            {years.map((year) => (
-              <TouchableOpacity
-                key={year}
-                style={[
-                  styles.optionItem,
-                  selectedYear === year && styles.selectedSubOptionItem
-                ]}
-                onPress={() => setSelectedYear(year)}
-              >
-                <Text style={styles.optionText}>
-                  {selectedYear === year ? '✓ ' : ''}{year}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        )}
-
-        {selectedFilter === 'month' && (
-          <View style={styles.subOptionsContainer}>
-            {months.map((month) => (
-              <TouchableOpacity
-                key={month}
-                style={[
-                  styles.optionItem,
-                  selectedMonth === month && styles.selectedSubOptionItem
-                ]}
-                onPress={() => setSelectedMonth(month)}
-              >
-                <Text style={styles.optionText}>
-                  {selectedMonth === month ? '✓ ' : ''}{month}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        )}
-
-        {selectedFilter === 'category' && (
-          <View style={styles.subOptionsContainer}>
-            {categories.map((cat) => (
-              <TouchableOpacity
-                key={cat}
-                style={[
-                  styles.optionItem,
-                  selectedCategory === cat && styles.selectedSubOptionItem
-                ]}
-                onPress={() => setSelectedCategory(cat)}
-              >
-                <Text style={styles.optionText}>
-                  {selectedCategory === cat ? '✓ ' : ''}{cat}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        )}
-
-        {selectedFilter === 'custom' && (
-          <View style={styles.subOptionsContainer}>
-            <TouchableOpacity style={styles.optionItem} onPress={() => setShowFromPicker(true)}>
-              <Text style={styles.optionText}>From: {fromDate.toDateString()}</Text>
-            </TouchableOpacity>
-            {showFromPicker && (
-              <DateTimePicker
-                value={fromDate}
-                mode="date"
-                display="default"
-                onChange={(e, date) => {
-                  setShowFromPicker(false);
-                  if (date) setFromDate(date);
-                }}
-              />
-            )}
-
-            <TouchableOpacity style={styles.optionItem} onPress={() => setShowToPicker(true)}>
-              <Text style={styles.optionText}>To: {toDate.toDateString()}</Text>
-            </TouchableOpacity>
-            {showToPicker && (
-              <DateTimePicker
-                value={toDate}
-                mode="date"
-                display="default"
-                onChange={(e, date) => {
-                  setShowToPicker(false);
-                  if (date) setToDate(date);
-                }}
-              />
-            )}
-          </View>
-        )}
-
-        {/* APPLY BUTTON */}
-        <TouchableOpacity style={styles.applyButton} onPress={handleApplyFilters}>
-          <Text style={styles.applyText}>Apply</Text>
+    <View style={styles.container}>
+      <View style={styles.header}>
+     <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
         </TouchableOpacity>
+
+        <Text style={styles.headerTitle}>Filters</Text>
+      </View>
+
+      <View style={styles.filterOptionsContainer}>
+        <TouchableOpacity style={styles.filterItem} onPress={() => openFilterModal('years')}>
+          <Text style={styles.filterItemText}>Years</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.filterItem} onPress={() => openFilterModal('months')}>
+          <Text style={styles.filterItemText}>Months</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.filterItem} onPress={() => openFilterModal('categories')}>
+          <Text style={styles.filterItemText}>Categories</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.filterItem} onPress={() => openFilterModal('customDate')}>
+          <Text style={styles.filterItemText}>Custom Date</Text>
+        </TouchableOpacity>
+      </View>
+
+      <TouchableOpacity style={styles.applyButton} onPress={handleApplyFilters}>
+        <Text style={styles.applyButtonText}>Apply</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.clearButton} onPress={clearAllFilters}>
+        <Text style={styles.clearButtonText}>Clear</Text>
+      </TouchableOpacity>
+
+      <ScrollView contentContainerStyle={styles.selectedDataContainer}>
+        <Text style={styles.selectedDataTitle}>Current Selections:</Text>
+        <Text style={styles.selectedDataItem}>
+          Years: {selectedYears.length > 0 ? selectedYears.join(', ') : 'None'}
+        </Text>
+        <Text style={styles.selectedDataItem}>
+          Months: {selectedMonths.length > 0 ? selectedMonths.join(', ') : 'None'}
+        </Text>
+        <Text style={styles.selectedDataItem}>
+          Categories: {selectedCategories.length > 0 ? selectedCategories.join(', ') : 'None'}
+        </Text>
+        <Text style={styles.selectedDataItem}>
+          Custom Date: {customDateRange.from && customDateRange.to
+            ? `${customDateRange.from.toLocaleDateString()} - ${customDateRange.to.toLocaleDateString()}`
+            : 'None'}
+        </Text>
       </ScrollView>
-    </SafeAreaView>
+
+      <Modal animationType="slide" transparent={true} visible={modalVisible} onRequestClose={closeFilterModal}>
+        <View style={styles.centeredView}>{renderFilterContent()}</View>
+      </Modal>
+    </View>
   );
-}
+};
+
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: '#0C0F14',
-  },
   container: {
     flex: 1,
+    backgroundColor: '#1E1E2C',
     padding: 20,
+    paddingTop: 50,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 30,
   },
-  title: {
-    fontSize: 20,
-    color: '#fff',
+  backButton: {
+    color: '#FFF',
+    fontSize: 24,
+    marginRight: 15,
+  },
+  headerTitle: {
+    color: '#FFF',
+    fontSize: 22,
     fontWeight: 'bold',
-    marginLeft: 10,
+    marginLeft: 20,
   },
-  filterOption: {
-    backgroundColor: '#1C1F26',
-    borderRadius: 10,
+  selectedDataContainer: {
+    backgroundColor: '#2C2C3A',
     padding: 15,
-    marginBottom: 15,
-    borderWidth: 1,
-    borderColor: 'transparent',
-  },
-  selectedFilterOption: {
-    borderColor: '#E74C3C',
-    borderWidth: 2,
-  },
-  filterText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  summaryText: {
-    color: '#aaa',
-    fontSize: 14,
-    marginTop: 5,
-    fontStyle: 'italic',
-  },
-  subOptionsContainer: {
-    marginTop: 10,
-    marginBottom: 20,
-    paddingHorizontal: 10,
-  },
-  optionItem: {
-    backgroundColor: '#2E3239',
-    padding: 12,
-    marginVertical: 5,
     borderRadius: 8,
-    borderWidth: 1,
-    borderColor: 'transparent',
+    marginTop: 20,
   },
-  selectedSubOptionItem: {
-    backgroundColor: '#3A4250',
-    borderColor: '#E74C3C',
-  },
-  optionText: {
-    color: '#fff',
-    fontSize: 15,
-  },
-  applyButton: {
-    backgroundColor: '#E74C3C',
-    padding: 15,
-    borderRadius: 10,
-    marginTop: 30,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  applyText: {
-    color: '#fff',
-    fontWeight: 'bold',
+  selectedDataTitle: {
+    color: '#FFF',
     fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  selectedDataItem: {
+    color: '#D3D3D3',
+    fontSize: 14,
+    marginBottom: 5,
+  },
+  filterOptionsContainer: {},
+  filterItem: {
+    backgroundColor: '#2C2C3A',
+    paddingVertical: 18,
+    paddingHorizontal: 15,
+    borderRadius: 8,
+    marginBottom: 15,
+  },
+  filterItemText: { color: '#FFF', fontSize: 16 },
+  applyButton: {
+    backgroundColor: '#FF6347',
+    paddingVertical: 13,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 30,
+  },
+  applyButtonText: {
+    color: '#FFF',
+    fontSize: 18,
+    fontWeight: 'bold',
+   
+  },
+  clearButton: {
+    backgroundColor: '#888',
+    paddingVertical: 13,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 15,
+  },
+  clearButtonText: {
+    color: '#FFF',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  centeredView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.7)',
+  },
+  modalContent: {
+    backgroundColor: '#333333',
+    borderRadius: 10,
+    padding: 20,
+    width: '85%',
+    maxHeight: '70%',
+  },
+  modalTitle: {
+    color: '#FFF',
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  checkboxContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#444',
+  },
+  checkboxLabel: {
+    color: '#FFF',
+    fontSize: 16,
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginTop: 20,
+  },
+  modalButton: {
+    backgroundColor: '#555',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+  },
+  modalButtonText: {
+    color: '#FFF',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  customDateContainer: {
+    backgroundColor: '#333333',
+    borderRadius: 10,
+    padding: 20,
+    width: '85%',
+    alignItems: 'center',
+  },
+  datePickerTrigger: {
+    backgroundColor: '#2C2C3A',
+    padding: 15,
+    borderRadius: 8,
+    marginVertical: 10,
+    width: '100%',
+    alignItems: 'center',
+  },
+  datePickerTriggerText: {
+    color: '#FFF',
+    fontSize: 16,
   },
 });
+
+export default FiltersScreen; 

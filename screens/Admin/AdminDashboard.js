@@ -1,4 +1,5 @@
 import React, { useCallback, useState, useEffect } from 'react';
+
 import {
   View,
   ScrollView,
@@ -58,7 +59,9 @@ export default function AdminDashboard({ navigation }) {
     if (route.params?.newVisitor) {
       const newVisitor = {
         ...route.params.newVisitor,
-        id: Date.now().toString(),
+        // id: Date.now().toString(),
+        id: `${Date.now()}-${Math.random()}`,
+
         checkInTime:
           route.params.newVisitor.checkInTime || new Date().toISOString(),
       };
@@ -92,6 +95,8 @@ export default function AdminDashboard({ navigation }) {
 
       <ScrollView contentContainerStyle={styles.container}>
         <Text style={styles.label}>All Visitors</Text>
+
+        
 
         {filteredVisitors.map((visitor) => (
           <VisitorCard
