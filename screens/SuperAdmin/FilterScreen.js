@@ -1069,7 +1069,7 @@ const styles = StyleSheet.create({
   },
   filterItemText: { color: '#FFF', fontSize: 16 },
   applyButton: {
-    backgroundColor: '#FF6347',
+    backgroundColor: '#ee4224ff',
     paddingVertical: 13,
     borderRadius: 8,
     alignItems: 'center',

@@ -487,6 +487,9 @@
 
 import React, { useState, useCallback } from 'react';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import * as Print from 'expo-print';
+import * as Sharing from 'expo-sharing';
+
 import {
   View,
   Text,
@@ -503,6 +506,42 @@ export default function SuperAdminHistoryScreen() {
   const [search, setSearch] = useState('');
   const [todayData, setTodayData] = useState([]);
   const [yesterdayData, setYesterdayData] = useState([]);
+
+  const handleDownload = async () => {
+  const generateHTML = () => {
+    const formatVisitors = (title, visitors) =>
+      visitors.length > 0
+        ? `<h2>${title}</h2><ul>${visitors
+            .map(
+              (v) =>
+                `<li><strong>${v.name}</strong> - ${v.purpose} at ${new Date(
+                  v.checkInTime
+                ).toLocaleTimeString()}</li>`
+            )
+            .join('')}</ul>`
+        : '';
+
+    return `
+      <html>
+        <head><meta charset="utf-8" /></head>
+        <body>
+          <h1>Visitor History</h1>
+          ${formatVisitors('Today', filteredToday)}
+          ${formatVisitors('Yesterday', filteredYesterday)}
+        </body>
+      </html>
+    `;
+  };
+
+  const html = generateHTML();
+  const { uri } = await Print.printToFileAsync({ html });
+
+  await Sharing.shareAsync(uri, {
+    mimeType: 'application/pdf',
+    dialogTitle: 'Share Visitor History PDF',
+    UTI: 'com.adobe.pdf',
+  });
+};
 
   useFocusEffect(
     useCallback(() => {
@@ -606,6 +645,12 @@ export default function SuperAdminHistoryScreen() {
         {filteredToday.length === 0 && filteredYesterday.length === 0 && (
           <Text style={styles.noData}>No visitors found</Text>
         )}
+
+        <TouchableOpacity style={styles.downloadButton} onPress={handleDownload}>
+  <Ionicons name="download-outline" size={20} color="#fff" />
+  <Text style={styles.downloadText}>Download PDF</Text>
+</TouchableOpacity>
+
       </ScrollView>
     </View>
   );
@@ -618,6 +663,23 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 50,
   },
+  downloadButton: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  backgroundColor: '#cc442fff',
+  padding: 10,
+  borderRadius: 10,
+  marginBottom: 15,
+  justifyContent: 'center',
+},
+
+downloadText:
+ {
+  color: '#fff',
+  marginLeft: 8,
+  fontWeight: 'bold',
+},
+
   header: {
     flexDirection: 'row',
     alignItems: 'center',

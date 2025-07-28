@@ -52,6 +52,39 @@ const DownloadScreen = ({ navigation, route }) => {
         <Text style={styles.headerTitle}>Download</Text>
       </View>
 
+      onPress={async () => {
+  const htmlContent = `
+    <html>
+      <body style="font-family: Arial; padding: 20px;">
+        <h1 style="color: #E74C3C;">Downloaded Visitor Records</h1>
+        <ul>
+          ${DATA.map(item => `<li><strong>${item.name}</strong> - ${item.type}</li>`).join('')}
+        </ul>
+      </body>
+    </html>
+  `;
+
+  try {
+    const { uri } = await Print.printToFileAsync({ html: htmlContent });
+
+    const { status } = await MediaLibrary.requestPermissionsAsync();
+    if (status !== 'granted') {
+      alert('Permission to access media library is required!');
+      return;
+    }
+
+    const asset = await MediaLibrary.createAssetAsync(uri);
+    await MediaLibrary.createAlbumAsync('Downloads', asset, false);
+
+    setShowSuccessMessage(true);
+    setTimeout(() => setShowSuccessMessage(false), 2500);
+
+  } catch (error) {
+    console.error('Error while generating PDF:', error);
+    alert('Failed to download PDF.');
+  }
+}}
+
       <View style={styles.searchContainer}>
         <SearchBar
           placeholder="Search"
@@ -178,7 +211,7 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
   },
   downloadButton: {
-    backgroundColor: '#E74C3C',
+    backgroundColor: '#e16534ff',
     padding: 15,
     margin: 16,
     borderRadius: 8,

@@ -1,5 +1,4 @@
 import React, { useCallback, useState, useEffect } from 'react';
-
 import {
   View,
   ScrollView,
@@ -95,8 +94,6 @@ export default function AdminDashboard({ navigation }) {
 
       <ScrollView contentContainerStyle={styles.container}>
         <Text style={styles.label}>All Visitors</Text>
-
-        
 
         {filteredVisitors.map((visitor) => (
           <VisitorCard

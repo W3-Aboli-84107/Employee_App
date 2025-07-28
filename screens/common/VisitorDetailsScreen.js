@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+
 import {
   View,
   Text,
@@ -13,6 +14,9 @@ import {
   FontAwesome,
 } from '@expo/vector-icons';
 
+import * as Print from 'expo-print';
+import { shareAsync } from 'expo-sharing';
+
 export default function VisitorDetailsScreen({ route, navigation }) {
   const [visitor, setVisitor] = useState(route.params.visitor);
 
@@ -25,6 +29,31 @@ export default function VisitorDetailsScreen({ route, navigation }) {
     });
   };
 
+  
+  const handleDownloadPDF = async () => {
+    const html = `
+      <html>
+        <body>
+          <h1>Visitor Details</h1>
+          <p><strong>Name:</strong> ${visitor.name}</p>
+          <p><strong>Email:</strong> ${visitor.email}</p>
+          <p><strong>Phone:</strong> ${visitor.phone}</p>
+          <p><strong>Gender:</strong> ${visitor.gender}</p>
+          <p><strong>Person to Meet:</strong> ${visitor.personToMeet}</p>
+          <p><strong>Address:</strong> ${visitor.address}</p>
+          <p><strong>Purpose:</strong> ${visitor.purpose}</p>
+          <p><strong>In Time:</strong> ${visitor.inTime}</p>
+          <p><strong>Out Time:</strong> ${visitor.outTime}</p>
+          <p><strong>Vehicle Number:</strong> ${visitor.vehicle}</p>
+        </body>
+      </html>
+    `;
+
+    const { uri } = await Print.printToFileAsync({ html });
+    await shareAsync(uri, { UTI: '.pdf', mimeType: 'application/pdf' });
+  };
+
+  
   const formatTime = (timeString) => {
     if (!timeString) return '—';
     const date = new Date(timeString);
@@ -45,6 +74,7 @@ export default function VisitorDetailsScreen({ route, navigation }) {
             <Ionicons name="arrow-back" size={24} color="#fff" />
           </TouchableOpacity>
 
+          
           <View style={styles.titleWrapper}>
             <Text style={styles.screenTitle}>Visitor Details</Text>
           </View>
@@ -52,6 +82,11 @@ export default function VisitorDetailsScreen({ route, navigation }) {
           <TouchableOpacity onPress={handleEdit} style={styles.editButton}>
             <Ionicons name="pencil" size={20} color="#fff" />
           </TouchableOpacity>
+
+           <TouchableOpacity onPress={handleDownloadPDF}>
+            <Ionicons name="download" size={22} color="#fff" style={styles.icon} />
+          </TouchableOpacity>
+
         </View>
 
         {/* Avatar */}
@@ -164,6 +199,7 @@ const styles = StyleSheet.create({
   },
   editButton: {
     padding: 4,
+    marginLeft: 70,
   },
   titleWrapper: {
     flex: 1,
@@ -214,4 +250,11 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     width: '48%',
   },
+  downloadButton:
+   { backgroundColor: '#E74C3C', 
+    padding: 15,
+     borderRadius: 10, 
+    marginLeft:50,
+     marginTop: 30
+     },
 });
