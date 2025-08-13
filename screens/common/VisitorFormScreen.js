@@ -9,7 +9,8 @@ import * as ImagePicker from 'expo-image-picker';
 import Checkbox from 'expo-checkbox';
 import { KeyboardAvoidingView, Platform } from 'react-native';
 
-export default function VisitorFormScreen({ navigation, route }) {
+export default function VisitorFormScreen({ navigation, route }) 
+{
   const { onSave } = route.params || {};
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
@@ -47,6 +48,7 @@ export default function VisitorFormScreen({ navigation, route }) {
     { label: 'Friend', selected: false },
     { label: 'Others', selected: false },
   ]);
+  
   const [referenceModalVisible, setReferenceModalVisible] = useState(false);
 
   const [idProofModalVisible, setIdProofModalVisible] = useState(false);
@@ -159,23 +161,20 @@ return (
 //   keyboardVerticalOffset={Platform.OS === 'ios' ? 70 : 0}
 // >
 
-  
 // <ScrollView
 //   style={styles.container}
 //   contentContainerStyle={styles.scrollContent}
 //   keyboardShouldPersistTaps="handled"
 // >
+
 <KeyboardAvoidingView
   behavior={Platform.OS === 'ios' ? 'padding' : undefined}
   style={{ flex: 1, backgroundColor: '#0D0D1A' }}
-  keyboardVerticalOffset={Platform.OS === 'ios' ? 70 : 0}
->
+  keyboardVerticalOffset={Platform.OS === 'ios' ? 70 : 0} >
   <ScrollView
     style={{ flex: 1 }}
     contentContainerStyle={styles.scrollContainer}
-    keyboardShouldPersistTaps="handled"
-  >
-
+    keyboardShouldPersistTaps="handled" >
 
     <View style={styles.header}>
       <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
@@ -196,6 +195,7 @@ return (
           ) : (
             <Ionicons name={field.icon} size={20} color="#E74C3C" style={styles.icon} />
           )}
+
           <TextInput
             placeholder={field.placeholder}
             placeholderTextColor="#aaa"
@@ -207,8 +207,6 @@ return (
           />
         </View>
       ))}
-
-      
 
       {/* Vehicle Number (optional) */}
       <View style={styles.inputBox}>

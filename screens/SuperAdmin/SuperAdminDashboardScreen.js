@@ -14,12 +14,25 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import HeaderBar from '../../components/HeaderBar';
 import VisitorCard from '../../components/VisiterCard';
 import colors from '../../constants/colors';
+import DateTimePicker from '@react-native-community/datetimepicker';
+
 
 export default function AdminDashboard({ navigation }) {
   const route = useRoute();
   const [searchQuery, setSearchQuery] = useState('');
   const [visitors, setVisitors] = useState([]);
   const [filteredVisitors, setFilteredVisitors] = useState([]);
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [showDatePicker, setShowDatePicker] = useState(false);
+
+  const handleDateChange = (event, selectedDate) => {
+        setShowDatePicker(false);
+        if (selectedDate) {
+          setSelectedDate(selectedDate);
+          filterVisitorsByDate(selectedDate);
+        }
+      };
+
 
   // Load all visitors once on mount (only if needed for backup)
   useEffect(() => {
@@ -124,7 +137,21 @@ export default function AdminDashboard({ navigation }) {
 
   return (
     <View style={styles.screen}>
-      <HeaderBar onSearch={setSearchQuery} />
+      {/* <HeaderBar onSearch={setSearchQuery} /> */}
+      <HeaderBar 
+          onSearch={setSearchQuery} 
+          onDatePress={() => setShowDatePicker(true)} 
+        />
+
+
+  {showDatePicker && (
+    <DateTimePicker
+      value={selectedDate}
+      mode="date"
+      display="default"
+      onChange={handleDateChange}
+    />
+  )}
 
       <ScrollView contentContainerStyle={styles.container}>
         <Text style={styles.label}>Today's Visitors</Text>
@@ -211,6 +238,11 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 20,
     fontSize: 16,
+  },
+  selectedDate: {
+    fontStyle: 'italic',
+    color: '#555',
+    marginBottom: 8,
   },
   fab: {
     position: 'absolute',
